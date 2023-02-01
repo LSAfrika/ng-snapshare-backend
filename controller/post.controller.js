@@ -28,14 +28,6 @@ exports.getcategoryphotos=async(req,res)=>{
 
 
 
-
-
-
-
-
-
-
-
 exports.postphoto=async(req,res)=>{
 
     try {
