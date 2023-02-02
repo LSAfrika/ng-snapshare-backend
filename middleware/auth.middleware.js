@@ -23,7 +23,8 @@ exports.signup=async(req,res,next)=>{
         const payload={
             email:email,
             username:username,
-            _id:createuser._id
+            _id:createuser._id,
+            imgurl:createuser.imgurl
         }
         const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
             expiresIn:'10m'
@@ -61,6 +62,7 @@ exports.signin=async(req,res,next)=>{
 
             const payload={
                 email:email,
+                imgurl:user.imgurl,
                 username:user.username,
                 _id:user._id
             }

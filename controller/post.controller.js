@@ -2,24 +2,38 @@ const {postsmodel} =require('../models/main.models')
 
 
 
-exports.getallphotos=async(req,res)=>{
+exports.getallposts=async(req,res)=>{
 
     try {
-        const allposts=await postsmodel.find()
-        console.log(allposts);
-        res.send('all photo route hit')
+        const pagesize = 2;
+        let pagination = req.query.pagination;
+           
+        const allposts=await postsmodel.find().skip(pagination * pagesize)
+        .limit(pagesize)
+        .populate("user","username imgurl  createdAt");
+         res.send({allposts})
+        
     } catch (error) {
+        res.send({errormessage:error.message})
         
     }
 
 }
 
-exports.getsinglephoto=async(req,res)=>{
-    res.send('single photo route hit')
+exports.getsinglepost=async(req,res)=>{
+  
+    try {
+
+        const id=req.params.id
+        const singlepost=await postsmodel.findById({_id:id});
+     res.send({singlepost})
+    } catch (error) {
+        res.send({errormessage:error.message})
+    }
 
 }
 
-exports.getcategoryphotos=async(req,res)=>{
+exports.getcategoryposts=async(req,res)=>{
 
     const category=req.params.category
     res.send('category photo route hit: '+category)
