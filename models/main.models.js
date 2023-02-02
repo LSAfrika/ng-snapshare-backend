@@ -35,8 +35,8 @@ exports.postsmodel = mongoose.model(
     new mongoose.Schema(
       {
         username: { type: String, required: true },
-        imgurl: { type: String, required: true },
-        
+        imgurl: { type: String },
+        hash:{ type: String, required: true },
         email: { type: String, required: true },
       },
       { timestamps: true }
