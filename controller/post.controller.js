@@ -35,23 +35,86 @@ exports.postphoto=async(req,res)=>{
     if(req.files){
         // res.send('post photo route hit')
         const allfiles =req.files.photo
-        // console.log(allfiles);
-        let length=0;
-        allfiles.forEach(file => {
-            
-            let uploadPath = 'public/uploads/' + Date.now()+file.name;
-            
+          console.log(allfiles.length);
 
-  file.mv(uploadPath, function(err) {
-    if (err) {
-      return res.status(500).send(err);
-    }
+         let length=0;
 
-    length++
-
-    if(length=== allfiles.length) res.send('File successfully uploaded ' );
+         let filespatharraytosave=[]
+         if(allfiles.length === undefined) {
             
-        });
+            let filename= Date.now()+allfiles.name
+            let uploadPath = 'public/uploads/' +filename;
+            let viewpath='http://localhost:4555/'+`uploads/${filename}`
+            filespatharraytosave.push(viewpath)
+
+            allfiles.mv(uploadPath, function(err) {
+                if (err) {
+                  return res.status(500).send(err);
+                }
+            
+                     console.log('saved files: ',filespatharraytosave);
+                    //  res.send('File successfully uploaded ' );
+                    
+                    
+                    
+                        
+                    });
+
+        console.log('single file save: \n',filespatharraytosave);
+
+            const postpayload={
+                imgurl:filespatharraytosave,
+                user:req.body.userid,
+                category:req.body.category,
+                caption:req.body.caption
+            }
+
+            const post = await postsmodel.create({...postpayload})
+
+            res.send({post,message:'post created successfully'})
+
+         }
+   
+        allfiles.forEach(async(file) => {
+            let filename= Date.now()+file.name
+            let uploadPath = 'public/uploads/' +filename;
+            let viewpath='http://localhost:4555/'+`uploads/${filename}`
+            
+            filespatharraytosave.push(viewpath)
+//  await file.mv(uploadPath, function(err) {
+//     if (err)  return res.status(500).send(err);
+//     length++
+//     console.log('number of files moved: ',length);
+
+   
+// });
+
+
+      await file.mv(uploadPath);
+       length++
+// console.log('result from awaiting file movement: \n',fileresult);
+         if(length=== allfiles.length){
+
+        console.log('multiple file save: \n',filespatharraytosave);
+            const postpayload={
+                imgurl:filespatharraytosave,
+                user:req.body.userid,
+                category:req.body.category,
+                caption:req.body.caption
+
+            }
+    
+            const post = await postsmodel.create({...postpayload})
+    
+           return res.send({post,message:'post created successfully'})
+    
+    
+    
+            
+            
+             }
+
+        //    return res.send('skipping if check')
     })
 
      

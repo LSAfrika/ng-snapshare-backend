@@ -5,12 +5,12 @@ exports.postsmodel = mongoose.model(
     "POST",
     new mongoose.Schema(
       {
-        user: { type: String, required: true },
-        imgurl: { type: String, required: true },
-        
+        user: { type: mongoose.Schema.Types.ObjectId, required: true },
+        imgurl: [],
+        caption:{type:String},
         likes: [],
         comments:[],
-        enum:["nature","technology","health","wildlife"]
+        category:{type:String ,enum:["nature","technology","health","wildlife","all"]}
         
       },
       { timestamps: true }
@@ -23,7 +23,7 @@ exports.postsmodel = mongoose.model(
     "LIKES",
     new mongoose.Schema(
       {
-       kes: [{type: mongoose.Schema.Types.ObjectId}],
+       likes: [{type: mongoose.Schema.Types.ObjectId}],
       },
       { timestamps: true }
     )

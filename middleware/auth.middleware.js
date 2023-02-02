@@ -84,9 +84,34 @@ exports.signin=async(req,res,next)=>{
 
 
 exports.authentication=async(req,res,next)=>{
+    let decodedtoken;
     try {
+
+        const reqtoken = req.headers.authorization;
+        const token = reqtoken.split(" ")[1];
+         decodedtoken =await jwt.decode(token);
+        const verified = await jwt.verify(token, process.env.SIGNING_TOKEN);
+
+        req.body.userid=decodedtoken._id
+
+        next()
         
     } catch (error) {
+
+        if (error.message === "jwt expired") {
+console.log('token expired needs refreshing');
+            const {email,_id,username}=decodedtoken
+
+            const token=await jwt.sign({email,_id,username},process.env.SIGNING_TOKEN,{expiresIn:'10m'})
+            req.body.userid=_id
+
+            req.body.token= token
+            next()
+        }else{
+            res.send({errormessage:error.message})
+
+        }
+
         
     }
 }
