@@ -144,7 +144,35 @@ exports.postphoto=async(req,res)=>{
 }
 
 exports.deletephoto=async(req,res)=>{
-    res.send('delete photo route hit: '+req.params.photoid)
+    try {
+        const id=req.params.photoid
+        const{userid}=req.body
+        const posttodelete=await postsmodel.findById({_id:id})
+    
+        if(posttodelete){
+    
+            console.log('post to delete:\n',posttodelete);
+            console.log('post owner:\n',posttodelete.user);
+            console.log('auth user:\n',userid);
+    
+          const  postonwerid = posttodelete.user.toString()
+          console.log('',postonwerid);
+          
+    if(postonwerid !== userid)  throw new Error('unauthorized deletion atempt')
+    
+    
+            
+            await posttodelete.delete()
+            res.send({message:'post deleted'})
+    
+    
+        }
+        
+    } catch (error) {
+    
+        res.send({errormessage:error.message})
+        
+    }
 
 }
 
