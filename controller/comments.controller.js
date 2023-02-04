@@ -1,5 +1,5 @@
 const {postsmodel,commentsmodel} =require('../models/main.models')
-const { post } = require('../routes/comments.routes')
+
 
 
 
@@ -43,6 +43,25 @@ exports.deletecomment=async(req,res)=>{
 }
 
 exports.updatecomment=async(req,res)=>{
-    res.send('update comment route hit')
+try {
+    // res.send('update comment route hit')
+    const commentid=req.params.commentid
+        const {userid ,comment}=req.body
+        // res.send('post comment route hit'+postid)
+        console.log(comment,userid);
 
+        const editusercomment = await commentsmodel.findById(commentid)
+        if (editusercomment === null) throw new Error('no doc in database')
+        // console.log('comments returned:\n ',editusercomment);
+
+        if(editusercomment.ownerid.toString() !== userid) throw new Error('unauthorized attempt to edit comment')
+
+        editusercomment.comment=comment
+        await editusercomment.save()
+        res.send(editusercomment)
+
+        }
+ catch (error) {
+    res.send({errormessage:error.message})
+ }
 }
