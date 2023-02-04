@@ -51,6 +51,11 @@ exports.signin=async(req,res,next)=>{
         if(validemail === false) return res.status(409).send('please enter valid email')
         const user = await usermodel.findOne({email})
 
+        console.log('sigin user \n',user);
+
+        if(user === null) throw new Error('no user found')
+
+
         if(user){
             // console.log('user in db: \n',user)
             const passwordhash=user.hash
@@ -67,7 +72,7 @@ exports.signin=async(req,res,next)=>{
                 _id:user._id
             }
             const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
-                expiresIn:'10m'
+                expiresIn:'60m'
             })
     
     
@@ -76,6 +81,7 @@ exports.signin=async(req,res,next)=>{
     next();
 
         }
+        throw new Error()
 
     } catch (error) {
 
@@ -94,26 +100,28 @@ exports.authentication=async(req,res,next)=>{
          decodedtoken =await jwt.decode(token);
         const verified = await jwt.verify(token, process.env.SIGNING_TOKEN);
 
-        req.body.userid=decodedtoken._id
+        // console.log(('VERIFIED TOKEN:',verified));
+        req.body.userid=verified._id
 
         next()
         
     } catch (error) {
 
-        if (error.message === "jwt expired") {
-console.log('token expired needs refreshing');
-            const {email,_id,username}=decodedtoken
+//         if (error.message === "jwt expired") {
+// console.log('token expired needs refreshing');
+//             const {email,_id,username}=decodedtoken
 
-            const token=await jwt.sign({email,_id,username},process.env.SIGNING_TOKEN,{expiresIn:'10m'})
-            req.body.userid=_id
+//             const token=await jwt.sign({email,_id,username},process.env.SIGNING_TOKEN,{expiresIn:'10m'})
+//             req.body.userid=_id
+//             console.log('new token: ',token);
+//             req.body.token= token
+//             next()
+//         }else{
+//             res.send({errormessage:error.message})
 
-            req.body.token= token
-            next()
-        }else{
-            res.send({errormessage:error.message})
+//         }
 
-        }
-
+res.send({errormessage:error.message})
         
     }
 }

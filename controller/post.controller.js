@@ -8,9 +8,10 @@ exports.getallposts=async(req,res)=>{
         const pagesize = 2;
         let pagination = req.query.pagination;
            
-        const allposts=await postsmodel.find().skip(pagination * pagesize)
-        .limit(pagesize)
-        .populate("user","username imgurl  createdAt");
+        const allposts=await postsmodel.find()
+        // .skip(pagination * pagesize)
+        // .limit(pagesize)
+         .populate("user","username imgurl  createdAt");
          res.send({allposts})
         
     } catch (error) {
@@ -25,7 +26,21 @@ exports.getsinglepost=async(req,res)=>{
     try {
 
         const id=req.params.id
-        const singlepost=await postsmodel.findById({_id:id}).populate("user","username imgurl  createdAt");;
+        const singlepost=await postsmodel.findById({_id:id})
+        .populate({path:"user",select:"imgurl _id username",model:"USER" })
+         .populate(
+        {path:'comments',
+         select:"comment ownerid _id updatedAt",
+         model:"COMMENTS" ,
+         populate:[
+            {path:'ownerid',
+            model:"USER",
+            select:"_id username imgurl"
+            }
+                 ]
+        }
+        )
+        
      res.send({singlepost})
     } catch (error) {
         res.send({errormessage:error.message})

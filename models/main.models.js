@@ -6,10 +6,10 @@ exports.postsmodel = mongoose.model(
     new mongoose.Schema(
       {
         user: { type: mongoose.Schema.Types.ObjectId, required: true ,ref:"USER"},
-        imgurl: [],
+        imgurl: [{type:String,required:true}],
         caption:{type:String},
-        likes: [],
-        comments:[],
+        likes: [{type:mongoose.Schema.Types.ObjectId,ref:'LIKES'}],
+        comments:[{type:mongoose.Schema.Types.ObjectId,ref:'COMMENTS'}],
         category:{type:String ,enum:["nature","technology","health","wildlife","all"]}
         
       },
@@ -50,7 +50,7 @@ exports.postsmodel = mongoose.model(
     new mongoose.Schema(
       {
         comment: { type: String, required: true },
-        ownerid:{type:mongoose.Schema.Types.ObjectId,required:true},
+        ownerid:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'user'},
       
       },
       { timestamps: true }
