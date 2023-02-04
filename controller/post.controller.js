@@ -25,7 +25,7 @@ exports.getsinglepost=async(req,res)=>{
     try {
 
         const id=req.params.id
-        const singlepost=await postsmodel.findById({_id:id});
+        const singlepost=await postsmodel.findById({_id:id}).populate("user","username imgurl  createdAt");;
      res.send({singlepost})
     } catch (error) {
         res.send({errormessage:error.message})
