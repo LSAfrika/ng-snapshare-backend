@@ -30,7 +30,7 @@ exports.getsinglepost=async(req,res)=>{
         .populate({path:"user",select:"imgurl _id username",model:"USER" })
          .populate(
         {path:'comments',
-         select:"comment ownerid _id updatedAt",
+         select:"comment ownerid _id updatedAt createdAt",
          model:"COMMENTS" ,
          populate:[
             {path:'ownerid',
