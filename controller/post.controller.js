@@ -148,3 +148,38 @@ exports.deletephoto=async(req,res)=>{
 
 }
 
+
+exports.updatephotocomment=async(req,res)=>{
+    // res.send('update photo route hit: '+req.params.photoid)
+
+try {
+    const id=req.params.photoid
+    const{userid,commentupdate}=req.body
+    const posttoupdate=await postsmodel.findById({_id:id})
+
+    if(posttoupdate){
+
+        console.log('post to update:\n',posttoupdate);
+        console.log('auth user:\n',userid);
+        console.log('post owner:\n',posttoupdate.user);
+
+      const  postonwerid = posttoupdate.user.toString()
+      
+if(postonwerid !== userid)  throw new Error('image doesn\'t belong to you')
+
+
+        posttoupdate.caption=commentupdate
+        await posttoupdate.save()
+        res.send({message:'post updated',posttoupdate})
+
+
+    }
+    
+} catch (error) {
+
+    res.send({errormessage:error.message})
+    
+}
+
+}
+
