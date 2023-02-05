@@ -52,8 +52,9 @@ try {
 
     await deleteusercomment.delete()
  
-    res.send({message:'comment deleted successfully'})
+    res.send({message:'comment deleted successfullty'})
 } catch (error) {
+    res.send({errormessage:error.message})
     
 }
 
