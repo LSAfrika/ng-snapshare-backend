@@ -7,7 +7,7 @@ const{authentication}=require('../middleware/auth.middleware')
 router.use(authentication)
 router.post('/post/:postid',postcomment)
 router.patch('/update/:commentid',updatecomment)
-router.delete('/delete/:postid',deletecomment)
+router.delete('/delete/:commentid',deletecomment)
 
 
 

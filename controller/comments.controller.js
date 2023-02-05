@@ -38,7 +38,24 @@ exports.postcomment=async(req,res)=>{
 }
 
 exports.deletecomment=async(req,res)=>{
-    res.send('delete comment route hit')
+try {
+    const commentid=req.params.commentid
+    const {userid }=req.body
+    // res.send('post comment route hit'+postid)
+    console.log(userid);
+
+    const deleteusercomment = await commentsmodel.findById(commentid)
+    if (deleteusercomment === null) throw new Error('no doc in database')
+    // console.log('comments returned:\n ',deleteusercomment);
+
+    if(deleteusercomment.ownerid.toString() !== userid) throw new Error('unauthorized attempt to delete comment')
+
+    await deleteusercomment.delete()
+ 
+    res.send({message:'comment deleted successfully'})
+} catch (error) {
+    
+}
 
 }
 

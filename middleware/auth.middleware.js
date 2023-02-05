@@ -80,8 +80,10 @@ exports.signin=async(req,res,next)=>{
             req.body.token=token
     next();
 
+        }else{
+
+            throw new Error('check your email')
         }
-        throw new Error()
 
     } catch (error) {
 
