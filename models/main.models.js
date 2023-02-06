@@ -8,7 +8,7 @@ exports.postsmodel = mongoose.model(
         user: { type: mongoose.Schema.Types.ObjectId, required: true ,ref:"USER"},
         imgurl: [{type:String,required:true}],
         caption:{type:String},
-        likes: [{type:mongoose.Schema.Types.ObjectId,ref:'LIKES'}],
+        likes: [{type:mongoose.Schema.Types.ObjectId,ref:'USER'}],
         comments:[{type:mongoose.Schema.Types.ObjectId,ref:'COMMENTS'}],
         category:{type:String ,enum:["nature","technology","health","wildlife","all"]}
         

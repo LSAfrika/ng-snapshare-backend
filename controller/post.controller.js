@@ -39,7 +39,13 @@ exports.getsinglepost=async(req,res)=>{
             }
                  ]
         }
-        )
+        )  .populate(
+            {path:'likes',
+             select:"imgurl _id username",
+             model:"USER" ,
+         
+            }
+            )
         
      res.send({singlepost})
     } catch (error) {
