@@ -14,8 +14,9 @@ exports.postcomment=async(req,res)=>{
         console.log(comment,userid);
 
         const post = await postsmodel.findById(postid)
+        if(post===null)throw new Error('missing comment document')
 
-        if(post) {
+        
 
             const createcomment=await commentsmodel.create({comment,ownerid:userid})
 
@@ -25,7 +26,7 @@ exports.postcomment=async(req,res)=>{
 
                 res.send({message:'comment posted succesfully',post})
             }
-        }
+    
         
         //return res.send({post})
 

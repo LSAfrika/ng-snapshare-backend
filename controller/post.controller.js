@@ -47,6 +47,7 @@ exports.getsinglepost=async(req,res)=>{
             }
             )
         
+            if(singlepost ===null)throw new Error('missing document')
      res.send({singlepost})
     } catch (error) {
         res.send({errormessage:error.message})
@@ -170,7 +171,8 @@ exports.deletephoto=async(req,res)=>{
         const{userid}=req.body
         const posttodelete=await postsmodel.findById({_id:id})
     
-        if(posttodelete){
+        if(posttodelete===null)throw new Error('missing document')
+       
     
             console.log('post to delete:\n',posttodelete);
             console.log('post owner:\n',posttodelete.user);
@@ -187,7 +189,7 @@ exports.deletephoto=async(req,res)=>{
             res.send({message:'post deleted'})
     
     
-        }
+        
         
     } catch (error) {
     
@@ -206,7 +208,8 @@ try {
     const{userid,commentupdate}=req.body
     const posttoupdate=await postsmodel.findById({_id:id})
 
-    if(posttoupdate){
+    if(posttoupdate===null)throw new Error('missing document')
+  
 
         console.log('post to update:\n',posttoupdate);
         console.log('auth user:\n',userid);
@@ -214,7 +217,7 @@ try {
 
       const  postonwerid = posttoupdate.user.toString()
       
-if(postonwerid !== userid)  throw new Error('image doesn\'t belong to you')
+      if(postonwerid !== userid)  throw new Error('unauthoirized attempt to edit post')
 
 
         posttoupdate.caption=commentupdate
@@ -222,7 +225,7 @@ if(postonwerid !== userid)  throw new Error('image doesn\'t belong to you')
         res.send({message:'post updated',posttoupdate})
 
 
-    }
+    
     
 } catch (error) {
 
