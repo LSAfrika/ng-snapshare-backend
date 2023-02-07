@@ -161,6 +161,8 @@ const folder=req.body._id
 
 
 
+}else{
+    res.send({message:"post must include photos"})
 }
 
 

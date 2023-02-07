@@ -56,3 +56,30 @@ exports.postsmodel = mongoose.model(
       { timestamps: true }
     )
   );
+
+    // * comments model
+    exports.notficationsmodel = mongoose.model(
+      "NOTIFICATIONS",
+      new mongoose.Schema(
+        {
+          post: { type: mongoose.Schema.Types.ObjectId, required: true,ref:'POST' },
+          ownerid:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
+          viewed:{type:Boolean,required:true,default:false}
+        },
+        { timestamps: true }
+      )
+    );
+
+     // * comments model
+     exports.notficationsmodel = mongoose.model(
+      "MESSAGES",
+      new mongoose.Schema(
+        {
+          message: { type: String, required: true},
+          from:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
+          to:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
+          viewed:{type:Boolean,required:true,default:false}
+        },
+        { timestamps: true }
+      )
+    );

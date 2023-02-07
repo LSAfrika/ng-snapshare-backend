@@ -17,7 +17,7 @@ app.use(express.static(__dirname + "/public"));
 
 mongoose.set('strictQuery', false);
 
-const LocalDBconnection = `mongodb://localhost:27017/snapshareDB`;
+const LocalDBconnection = `mongodb://0.0.0.0:27017/snapshareDB`;
 const PORT =process.env.PORT||4555
 
 app.get('/',(req,res)=>{
@@ -36,17 +36,33 @@ app.use('/comments',require('./routes/comments.routes'))
 
 
 
-mongoose
-  .connect(LocalDBconnection, {
-    useNewUrlParser: true,
-    useunifiedtopology: true,
-  })
-  .then(() => {
-    app.listen(PORT,()=>{
-        console.log('app is running');
-    })
-  })
-  .catch((err) => console.log(err));
+
+const entry=async()=>{
+
+  try {
+console.log('app entry point');
+    await mongoose.connect(LocalDBconnection, { useNewUrlParser: true,useunifiedtopology: true})
+    await app.listen(PORT)
+    console.log(`SERVER RUNNING ONN PORT ${PORT}`);
+    
+  } catch (error) {
+    console.log(error.message);
+  }
+
+}
+
+entry()
+// mongoose
+//   .connect(LocalDBconnection, {
+//     useNewUrlParser: true,
+//     useunifiedtopology: true,
+//   })
+//   .then(() => {
+//     app.listen(PORT,()=>{
+//         console.log('app is running');
+//     })
+//   })
+//   .catch((err) => console.log(err));
 
 
 
