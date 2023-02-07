@@ -18,7 +18,7 @@ app.use(express.static(__dirname + "/public"));
 mongoose.set('strictQuery', false);
 
 const LocalDBconnection = `mongodb://localhost:27017/snapshareBE`;
-
+const PORT =process.env.PORT||4555
 
 app.get('/',(req,res)=>{
 
@@ -42,7 +42,7 @@ mongoose
     useunifiedtopology: true,
   })
   .then(() => {
-    app.listen(4555,()=>{
+    app.listen(PORT,()=>{
         console.log('app is running');
     })
   })
