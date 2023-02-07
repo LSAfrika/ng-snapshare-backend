@@ -1,5 +1,5 @@
 const {postsmodel} =require('../models/main.models')
-
+const fs = require('fs');
 
 
 exports.getallposts=async(req,res)=>{
@@ -192,8 +192,10 @@ exports.deletephoto=async(req,res)=>{
     if(postonwerid !== userid)  throw new Error('unauthorized deletion atempt')
     
     
+            fs.rmSync(`./public/uploads/${posttodelete._id}`, { recursive: true });
             
             await posttodelete.delete()
+
             res.send({message:'post deleted'})
     
     
