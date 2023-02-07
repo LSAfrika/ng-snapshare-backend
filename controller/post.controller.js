@@ -68,6 +68,8 @@ exports.postphoto=async(req,res)=>{
 
     try {
    
+const folder=req.body._id
+
     if(req.files){
         // res.send('post photo route hit')
         const allfiles =req.files.photo
@@ -79,8 +81,8 @@ exports.postphoto=async(req,res)=>{
          if(allfiles.length === undefined) {
             
             let filename= Date.now()+allfiles.name
-            let uploadPath = 'public/uploads/' +filename;
-            let viewpath='http://localhost:4555/'+`uploads/${filename}`
+            let uploadPath = `public/uploads/${folder}/` +filename;
+            let viewpath='http://localhost:4555/'+`uploads/${folder}/${filename}`
             filespatharraytosave.push(viewpath)
 
             allfiles.mv(uploadPath, function(err) {
@@ -102,19 +104,20 @@ exports.postphoto=async(req,res)=>{
                 imgurl:filespatharraytosave,
                 user:req.body.userid,
                 category:req.body.category,
-                caption:req.body.caption
+                caption:req.body.caption,
+                _id:folder
             }
 
             const post = await postsmodel.create({...postpayload})
 
-            res.send({post,message:'post created successfully'})
+         return   res.send({post,message:'post created successfully'})
 
          }
    
         allfiles.forEach(async(file) => {
             let filename= Date.now()+file.name
-            let uploadPath = 'public/uploads/' +filename;
-            let viewpath='http://localhost:4555/'+`uploads/${filename}`
+            let uploadPath = `public/uploads/${folder}/` +filename;
+            let viewpath='http://localhost:4555/'+`uploads/${folder}/${filename}`
             
             filespatharraytosave.push(viewpath)
 //  await file.mv(uploadPath, function(err) {
@@ -136,7 +139,8 @@ exports.postphoto=async(req,res)=>{
                 imgurl:filespatharraytosave,
                 user:req.body.userid,
                 category:req.body.category,
-                caption:req.body.caption
+                caption:req.body.caption,
+                _id:folder
 
             }
     
@@ -161,6 +165,8 @@ exports.postphoto=async(req,res)=>{
 
 
 } catch (error) {
+
+    res.send({errormessage:error.message})
         
 }
 }

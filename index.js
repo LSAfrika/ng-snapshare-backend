@@ -17,7 +17,7 @@ app.use(express.static(__dirname + "/public"));
 
 mongoose.set('strictQuery', false);
 
-const LocalDBconnection = `mongodb://localhost:27017/snapshareBE`;
+const LocalDBconnection = `mongodb://localhost:27017/snapshareDB`;
 const PORT =process.env.PORT||4555
 
 app.get('/',(req,res)=>{
