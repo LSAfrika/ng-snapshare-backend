@@ -16,7 +16,7 @@ exports.postcomment=async(req,res)=>{
         const post = await postsmodel.findById(postid)
         if(post===null)throw new Error('missing comment document')
 
-        
+        if(comment === undefined) throw new Error('please add a comment ')
 
             const createcomment=await commentsmodel.create({comment,ownerid:userid})
 
