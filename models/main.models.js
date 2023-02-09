@@ -64,6 +64,7 @@ exports.postsmodel = mongoose.model(
       "NOTIFICATIONS",
       new mongoose.Schema(
         {
+          commentid:{type:mongoose.Schema.Types.ObjectId,ref:'comments'},
           post: { type: mongoose.Schema.Types.ObjectId, required: true,ref:'POST' },
           postowner:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
          notificationowner:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
