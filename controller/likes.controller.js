@@ -1,4 +1,4 @@
-const {postsmodel} =require('../models/main.models')
+const {postsmodel,notficationsmodel} =require('../models/main.models')
 
 
 exports.postlike=async(req,res)=>{
@@ -21,18 +21,28 @@ if(userhaslikedpost===undefined){
 posttolike.likes.push(userid)
 
     await posttolike.save()
+const notificationpayload={
+    post:posttolike._id,
+    postowner:posttolike.user,
+    notificationowner:userid,
+    notificationtype:3
 
+}
 
-res.send(posttolike)
+const notification = await notficationsmodel.create({...notificationpayload})
+
+res.send({posttolike,notification})
 }else if(userhaslikedpost===userid){
      const indexofuserlike=posttolike.likes.indexOf(userid)
     // console.log('function being hit: \n',indexofuserlike);
     // console.log('index of comment in array: \n',posttolike.likes.findIndex(userid));
      posttolike.likes.splice(indexofuserlike,1)
+
      await posttolike.save()
+const removenotification= await notficationsmodel.findOneAndDelete({notificationowner:userid})
 
 
-    res.send(posttolike)
+    res.send({message:'removed like and notification for like' ,posttolike,removenotification})
 }
 
 return

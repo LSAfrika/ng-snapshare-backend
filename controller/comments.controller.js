@@ -1,4 +1,4 @@
-const {postsmodel,commentsmodel} =require('../models/main.models')
+const {postsmodel,commentsmodel,notficationsmodel} =require('../models/main.models')
 
 
 
@@ -18,13 +18,24 @@ exports.postcomment=async(req,res)=>{
 
         if(comment === undefined) throw new Error('please add a comment ')
 
-            const createcomment=await commentsmodel.create({comment,ownerid:userid})
+            const createcomment=await commentsmodel.create({post:post._id,comment,ownerid:userid})
 
             if(createcomment){
                 post.comments.push(createcomment)
                 await post.save()
 
-                res.send({message:'comment posted succesfully',post})
+             
+                const notificationpayload={
+                    post:post._id,
+                    postowner:post.user,
+                    notificationowner:userid,
+                    notificationtype:1
+                
+                }
+                
+                const notification = await notficationsmodel.create({...notificationpayload})
+
+                res.send({message:'comment posted succesfully',post,notification})
             }
     
         
@@ -75,9 +86,20 @@ try {
 
         if(editusercomment.ownerid.toString() !== userid) throw new Error('unauthorized attempt to edit comment')
 
+
+        
+        
+        
+        
         editusercomment.comment=comment
         await editusercomment.save()
-        res.send(editusercomment)
+        
+        const updatenotification =await notficationsmodel.findOneAndUpdate({notificationtype:2})
+
+
+
+
+        res.send({message:'updated both comment and notification' ,editusercomment,updatenotification})
 
         }
  catch (error) {

@@ -5,8 +5,8 @@ exports.createimagesfolder = async (req, res, next) => {
   try {
     const mongooseid =  mongoose.Types.ObjectId();
     const {caption }=req.body 
-console.log('caption is: ',caption);
-console.log('files to upload: ',req.files);
+// console.log('caption is: ',caption);
+// console.log('files to upload: ',req.files);
 
 if (req.files === undefined) return res.send({message:'please add a photos'})
 if (caption === undefined) return res.send({message:'please add a caption'})

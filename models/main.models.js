@@ -49,6 +49,8 @@ exports.postsmodel = mongoose.model(
     "COMMENTS",
     new mongoose.Schema(
       {
+        post:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'post'},
+        
         comment: { type: String, required: true },
         ownerid:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'user'},
       
@@ -63,7 +65,9 @@ exports.postsmodel = mongoose.model(
       new mongoose.Schema(
         {
           post: { type: mongoose.Schema.Types.ObjectId, required: true,ref:'POST' },
-          ownerid:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
+          postowner:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
+         notificationowner:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
+          notificationtype:{type:Number,required:true,enum:[1,2,3]},
           viewed:{type:Boolean,required:true,default:false}
         },
         { timestamps: true }
@@ -71,7 +75,7 @@ exports.postsmodel = mongoose.model(
     );
 
      // * comments model
-     exports.notficationsmodel = mongoose.model(
+     exports.messagesmodel = mongoose.model(
       "MESSAGES",
       new mongoose.Schema(
         {
