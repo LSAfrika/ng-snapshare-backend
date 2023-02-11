@@ -88,7 +88,7 @@ exports.retrieveusermessages=async(req,res)=>{
         
         if( secondaryidmessages.length>0)  return res.send({message:'received from reverse chat id',secondaryidmessages})
 
-       if(primaryidmessages === null && secondaryidmessages===null)  throw new Error('missing chat')
+       if(primaryidmessages.length === 0 && secondaryidmessages.length===0)  throw new Error('missing chat')
        
     //    return res.send({info:'missing chat',messages:[]})
 
