@@ -30,6 +30,7 @@ exports.signup=async(req,res,next)=>{
             expiresIn:'10m'
         })
 
+        console.log('sign up token: \n',token);
 
         // res.send({token})
         req.body.token=token

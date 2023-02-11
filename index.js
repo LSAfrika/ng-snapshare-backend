@@ -1,5 +1,6 @@
 const express= require('express')
 const app=express()
+const socketserve = require("http").createServer(app);
 const cors = require("cors");
 const expressuploader=require('express-fileupload')
 const cookieparser= require('cookie-parser')
@@ -42,8 +43,9 @@ const entry=async()=>{
   try {
 console.log('app entry point');
     await mongoose.connect(LocalDBconnection, { useNewUrlParser: true,useunifiedtopology: true})
-    await app.listen(PORT)
+    await socketserve.listen(PORT)
     console.log(`SERVER RUNNING ONN PORT ${PORT}`);
+    require('./socketserver/socket.server')(socketserve)
     
   } catch (error) {
     console.log(error.message);
@@ -52,17 +54,7 @@ console.log('app entry point');
 }
 
 entry()
-// mongoose
-//   .connect(LocalDBconnection, {
-//     useNewUrlParser: true,
-//     useunifiedtopology: true,
-//   })
-//   .then(() => {
-//     app.listen(PORT,()=>{
-//         console.log('app is running');
-//     })
-//   })
-//   .catch((err) => console.log(err));
+
 
 
 
