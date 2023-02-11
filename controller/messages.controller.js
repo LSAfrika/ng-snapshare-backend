@@ -5,107 +5,63 @@ exports.directmessage=async(req,res)=>{
     try {
         const chatid= req.params.chatid
         const {userid,message,to,from}=req.body
-   if(from!==userid)return res.send('error with body ofmessage')
-        const fromtoid= await messagesmodel.findOne({from_to:chatid})
-        const tofromid= await messagesmodel.findOne({to_from:chatid})
 
-// return res.send({fromtoid,tofromid})
 
-        if(tofromid===null && fromtoid===null){
-            console.log('no chats found \n usersending message: ',userid,'\n chat id: ',chatid)
-            // const from=userid
-            const from_to=from+':'+to
+        // let reversechatid=[]
+        const chatidarray=chatid.split(':')
+        const reversechatid=chatidarray[1]+":"+chatidarray[0]
+        console.log(chatidarray,'\n',reversechatid);
+//    if(from!==userid)return res.send('error with body ofmessage')
+        const primarychatid= await messagesmodel.findOne({chatuid:chatid})
+        const secondarychatid= await messagesmodel.findOne({chatuid:reversechatid})
        
-            
-        
-
-
-            // let  reverseuserchatarray=[]
-            // let userchatarray=chatid.split(':')
-            // reverseuserchatarray[0]= userchatarray[1]
-            // reverseuserchatarray[1]= userchatarray[0]
-
-            const to_from=to+":"+from
-
-
-            const messagepayload= {
+        if(primarychatid ===null && secondarychatid===null) {
+            const messagepayload={
                 message,
                 to,
                 from,
-                from_to,
-                to_from
+                chatuid:chatid
             }
 
-            const messagedelivered = await messagesmodel.create({...messagepayload})
+            const sentmessage=await messagesmodel.create({...messagepayload})
 
-            return res.send({message:'message sent',messagedelivered})
+            return res.send({message:'message sent successfully',sentmessage})
         }
 
-        if(tofromid !==null){
-        //   return res.send({message:`to from message id is \n ${tofromid.to_from}`}) 
+        if(primarychatid !=null){
 
-        // const from=userid
-        const from_to=from+":"+to
-   
-        
-    
+            const messagepayload={
+                message,
+                to,
+                from,
+                chatuid:chatid
+            }
 
+            const sentmessage=await messagesmodel.create({...messagepayload})
 
-        // let  reverseuserchatarray=[]
-        // let userchatarray=chatid.split(':')
-        // reverseuserchatarray[0]= userchatarray[1]
-        // reverseuserchatarray[1]= userchatarray[0]
-
-        const to_from=to+":"+from
-
-        // console.log('message property: ',message);
-
-       const messagepayload= {
-        message,
-        to,
-        from,
-        from_to,
-        to_from
-    }
-
-    const messagedelivered = await messagesmodel.create({...messagepayload})
-
-    return res.send({message:'message sent',messagedelivered})
-
-        }
-
-        if(fromtoid !==null){
-            // return res.send({message:`from to message id is \n ${fromtoid.from_to}`})
+            return res.send({message:'message sent successfully',sentmessage})
 
             
-           const from=userid
-           const to_from=chatid
-      
-           
-       
+        }
+
+        if(secondarychatid !=null){
+
+            const messagepayload={
+                message,
+                to,
+                from,
+                chatuid:reversechatid
+            }
+
+            const sentmessage=await messagesmodel.create({...messagepayload})
+
+            return res.send({message:'message sent successfully',sentmessage})
 
 
-           let  reverseuserchatarray=[]
-           let userchatarray=chatid.split(':')
-           reverseuserchatarray[0]= userchatarray[1]
-           reverseuserchatarray[1]= userchatarray[0]
+            return
+        }
+// return res.send({fromtoid,tofromid})
 
-           const from_to=reverseuserchatarray[0]+':'+reverseuserchatarray[1]
-
-           console.log('message property: ',message);
-
-          const messagepayload= {
-           message,
-           to,
-           from,
-           from_to,
-           to_from
-       }
-
-       const messagedelivered = await messagesmodel.create({...messagepayload})
-
-       return res.send({message:'message sent',messagedelivered})
-         }
     } catch (error) {
         res.send({errormessge:error.message})
         
