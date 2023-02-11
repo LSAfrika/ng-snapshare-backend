@@ -33,6 +33,7 @@ app.use('/comments',require('./routes/comments.routes'))
 app.use('/likes',require('./routes/likes.routes'))
 app.use('/user',require('./routes/users.routes'))
 app.use('/comments',require('./routes/comments.routes'))
+app.use('/messages',require('./routes/messages.routes'))
 
 
 

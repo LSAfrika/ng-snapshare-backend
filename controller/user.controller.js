@@ -37,8 +37,23 @@ exports.updateuser=async(req,res)=>{
 
 exports.getuser=async(req,res)=>{
     try {
-        res.send('get user hit')
+        const userid=req.params.id
+        const singleuser= await usermodel.findById(userid).select("_id username imgurl createdAt email")
+        if(singleuser===null)throw new Error('no user ')
+        res.send(singleuser)
         
+    } catch (error) {
+        res.send({errormessage:error.message})
+        
+    }
+
+}
+
+exports.getalluser=async(req,res)=>{
+    try {
+        const allusers= await usermodel.find().select("_id username imgurl createdAt email")
+        
+        res.send(allusers)
     } catch (error) {
         res.send({errormessage:error.message})
         
