@@ -111,3 +111,28 @@ exports.directmessage=async(req,res)=>{
         
     }
 }
+
+exports.retrieveusermessages=async(req,res)=>{
+    try {
+        
+        const chatid=req.params.chatid
+
+        const tomessages=await messagesmodel.find({to_from:chatid})
+        const frommessages=await messagesmodel.find({from_to:chatid})
+
+        if(tomessages!==null ) return res.send(tomessages)
+
+
+           
+        
+        if( frommessages!==null)  return res.send(frommessages)
+
+        return res.send({messages:[]})
+
+        
+
+
+    } catch (error) {
+        
+    }
+}

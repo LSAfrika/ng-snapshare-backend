@@ -1,12 +1,12 @@
 const express=require('express')
 const router= express.Router()
 const{authentication}=require('../middleware/auth.middleware')
-const{directmessage}=require('../controller/messages.controller')
+const{directmessage,retrieveusermessages}=require('../controller/messages.controller')
 
 
 router.use(authentication)
 router.get('/getallmessages')
-router.get('/getusermessage/:userchat')
+router.get('/getusermessage/:chatid',retrieveusermessages)
 
 
 

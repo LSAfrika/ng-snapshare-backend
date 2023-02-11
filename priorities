@@ -1,2 +1,4 @@
 ======TO DO=======
 1.rework authorization to intergrate cookie token
+
+re work messages model to use one chat id
