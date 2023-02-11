@@ -58,9 +58,9 @@ exports.directmessage=async(req,res)=>{
             return res.send({message:'message sent successfully',sentmessage})
 
 
-            return
+            
         }
-// return res.send({fromtoid,tofromid})
+
 
     } catch (error) {
         res.send({errormessge:error.message})
@@ -72,23 +72,32 @@ exports.retrieveusermessages=async(req,res)=>{
     try {
         
         const chatid=req.params.chatid
+        const chatidarray=chatid.split(':')
+        const reversechatid=chatidarray[1]+":"+chatidarray[0]
+        const primaryidmessages=await messagesmodel.find({chatuid:chatid})
+        const secondaryidmessages=await messagesmodel.find({chatuid:reversechatid})
+        console.log('1:',chatid);
+        console.log('2:',reversechatid);
+        // console.log('messages secondary: ',secondaryidmessages);
+        console.log('messages primarry: ',primaryidmessages);
 
-        const tomessages=await messagesmodel.find({to_from:chatid})
-        const frommessages=await messagesmodel.find({from_to:chatid})
-
-        if(tomessages!==null ) return res.send(tomessages)
+        if(primaryidmessages.length>0 ) return res.send({message:'received from  chat id',primaryidmessages})
 
 
            
         
-        if( frommessages!==null)  return res.send(frommessages)
+        if( secondaryidmessages.length>0)  return res.send({message:'received from reverse chat id',secondaryidmessages})
 
-        return res.send({messages:[]})
+       if(primaryidmessages === null && secondaryidmessages===null)  throw new Error('missing chat')
+       
+    //    return res.send({info:'missing chat',messages:[]})
 
         
 
 
     } catch (error) {
+
+        res.send({errormessge:error.message})
         
     }
 }

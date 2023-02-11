@@ -15,8 +15,8 @@ exports.signinuser=async(req,res)=>{
 
     try {
 
-        const{token}=req.body
-        res.send({token})
+        const{token,email,userid}=req.body
+        res.send({userid,email,token})
         
     } catch (error) {
         res.send({errormessage:error.message})
