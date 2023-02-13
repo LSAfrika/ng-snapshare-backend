@@ -1,4 +1,4 @@
-const {usermodel}=require('../models/main.models')
+const {usermodel,postsmodel}=require('../models/main.models')
 
 exports.signupuser=async(req,res)=>{
 
@@ -40,7 +40,12 @@ exports.getuser=async(req,res)=>{
         const userid=req.params.id
         const singleuser= await usermodel.findById(userid).select("_id username imgurl createdAt email")
         if(singleuser===null)throw new Error('no user ')
-        res.send(singleuser)
+
+        const userposts = await postsmodel.find({user:userid}).limit(2)
+
+        if(userposts.length === 0) return res.send(singleuser)
+
+        res.send({singleuser,userposts})
         
     } catch (error) {
         res.send({errormessage:error.message})
