@@ -24,6 +24,21 @@ exports.signinuser=async(req,res)=>{
     }
 
 }
+
+exports.authprovidersignin=async(req,res)=>{
+
+    try {
+
+        const{token,email,userid}=req.body
+        console.log(token,email,userid);
+        res.send({userid,email,token})
+        
+    } catch (error) {
+        res.send({errormessage:error.message})
+        
+    }
+
+}
 exports.updateuser=async(req,res)=>{
 
     try {
@@ -41,7 +56,7 @@ exports.getuser=async(req,res)=>{
         const singleuser= await usermodel.findById(userid).select("_id username imgurl createdAt email")
         if(singleuser===null)throw new Error('no user ')
 
-        const userposts = await postsmodel.find({user:userid}).limit(2)
+        const userposts = await postsmodel.find({user:userid}).limit(5)
 
         if(userposts.length === 0) return res.send(singleuser)
 

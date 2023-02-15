@@ -45,7 +45,8 @@ next();
 
 exports.signin=async(req,res,next)=>{
     try {
-        
+        // const fbtoken=req.headers.authorization
+        // console.log('firebasetoken',fbtoken);
         const {email,password}=req.body
         const validemail = testemail(email)
         
@@ -90,6 +91,98 @@ exports.signin=async(req,res,next)=>{
 
     } catch (error) {
 
+        res.send({errormessage:error.message})
+        
+    }
+}
+
+exports.authproviderssignin=async(req,res,next)=>{
+    try {
+        
+        const firebasetoken=req.headers.authorization
+        const token =firebasetoken.split(' ')[1]
+        // console.log(token);
+        const tokenvalue=await jwt.decode(token)
+        // const validemail = testemail(email)
+        // console.log(tokenvalue.iss);
+
+        if(tokenvalue.iss===null ||tokenvalue.iss===undefined)throw new Error('missing auth field')
+        if(tokenvalue.iss!=="https://securetoken.google.com/snapshare-ke")throw new Error('auth provider miss match link')
+        if(tokenvalue.aud===null ||tokenvalue.aud===undefined)throw new Error('missing auth field')
+
+        if(tokenvalue.aud!=="snapshare-ke")throw new Error('auth provider miss match aud')
+
+        const isUserinDb= await usermodel.findOne({email:tokenvalue.email})
+        console.log('user in db',isUserinDb);
+        // console.log('token value',tokenvalue.email);
+        if(isUserinDb===null){
+
+            const hash=await argon2.hash('newuser')
+            const newuserpayload={
+                firebaseuid:tokenvalue.user_id,
+                email:tokenvalue.email,
+                imgurl:tokenvalue.picture,
+                username:tokenvalue.name,
+                hash
+            }
+
+            // console.log('new user tocreate: ',newuserpayload);
+            const newuser=await usermodel.create({...newuserpayload})
+
+            // return res.send(newuser)
+
+            
+
+            const payload={
+                email:newuser.email,
+                imgurl:newuser.imgurl,
+                username:newuser.username,
+                _id:newuser._id,
+             
+            }
+            const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
+                expiresIn:'60m'
+            })
+    
+//    return res.send(payload)
+            // res.send({token})
+            req.body.token=token
+            req.body.email=payload.email
+            req.body.userid=payload._id
+    next();
+        }
+        else{
+            // console.log('user in db: \n',user)
+           
+
+            
+
+
+            const payload={
+                email:isUserinDb.email,
+                imgurl:isUserinDb.imgurl,
+                username:isUserinDb.username,
+                _id:isUserinDb._id,
+                
+            }
+            const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
+                expiresIn:'60m'
+            })
+    
+    
+            // res.send({token})
+            req.body.token=token
+            req.body.email=payload.email
+            req.body.userid=payload._id
+    next();
+
+     
+
+    } 
+    
+}catch (error) {
+
+    console.log(error.message)
         res.send({errormessage:error.message})
         
     }

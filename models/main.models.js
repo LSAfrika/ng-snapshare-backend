@@ -35,6 +35,7 @@ exports.postsmodel = mongoose.model(
     new mongoose.Schema(
       {
         username: { type: String, required: true },
+        firebaseuid: { type: String},
         imgurl: { type: String,required:true,default:'http://localhost:4555/defaultpic/profile.png'},
         hash:{ type: String, required: true },
         email: { type: String, required: true },
