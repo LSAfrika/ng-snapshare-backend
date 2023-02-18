@@ -10,7 +10,7 @@ exports.postsmodel = mongoose.model(
         caption:{type:String},
         likes: [{type:mongoose.Schema.Types.ObjectId,ref:'USER'}],
         comments:[{type:mongoose.Schema.Types.ObjectId,ref:'COMMENTS'}],
-        category:{type:String ,enum:["nature","technology","health","wildlife","all"]}
+        category:{type:String ,enum:["nature","technology","foods","wildlife","landscapes","sports"]}
         
       },
       { timestamps: true }
