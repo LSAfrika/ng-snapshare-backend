@@ -5,14 +5,18 @@ const fs = require('fs');
 exports.getallposts=async(req,res)=>{
 
     try {
-        const pagesize = 2;
+        const pagesize = 5;
         let pagination = req.query.pagination;
            
         const allposts=await postsmodel.find()
-        // .skip(pagination * pagesize)
-        // .limit(pagesize)
+         .sort({createdAt:-1})
+          .skip(pagination * pagesize)
+          .limit(pagesize)
          .populate("user","username imgurl  createdAt");
+
+        //  console.log(allposts.createdAt);
          res.send({allposts})
+        //  res.send({dates:allposts.createdAt})
         
     } catch (error) {
         res.send({errormessage:error.message})

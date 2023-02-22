@@ -219,7 +219,7 @@ exports.authentication=async(req,res,next)=>{
 
 //         }
 
-res.send({errormessage:error.message})
+return res.status(409).send({errormessage:error.message})
         
     }
 }
