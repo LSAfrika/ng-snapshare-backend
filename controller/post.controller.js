@@ -1,5 +1,6 @@
 const {postsmodel} =require('../models/main.models')
 const fs = require('fs');
+const { response } = require('express');
 
 
 exports.getallposts=async(req,res)=>{
@@ -8,14 +9,14 @@ exports.getallposts=async(req,res)=>{
         const pagesize = 5;
         let pagination = req.query.pagination;
            
-        const allposts=await postsmodel.find()
+        const posts=await postsmodel.find()
          .sort({createdAt:-1})
           .skip(pagination * pagesize)
           .limit(pagesize)
          .populate("user","username imgurl  createdAt");
 
-        //  console.log(allposts.createdAt);
-         res.send({allposts})
+        //  console.logposts.createdAt);
+         res.send({posts})
         //  res.send({dates:allposts.createdAt})
         
     } catch (error) {
@@ -29,6 +30,7 @@ exports.getsinglepost=async(req,res)=>{
   
     try {
 
+        
         const id=req.params.id
         const singlepost=await postsmodel.findById({_id:id})
         .populate({path:"user",select:"imgurl _id username",model:"USER" })
@@ -61,8 +63,27 @@ exports.getsinglepost=async(req,res)=>{
 
 exports.getcategoryposts=async(req,res)=>{
 
-    const category=req.params.category
-    res.send('category photo route hit: '+category)
+    try {
+        const pagesize = 1;
+        let pagination = req.query.pagination;
+    const searchcategory=req.query.category
+    console.log(searchcategory);
+    const posts=await postsmodel.find({category:searchcategory})
+    .sort({createdAt:-1})
+     .skip(pagination * pagesize)
+     .limit(pagesize)
+   .populate("user","username imgurl  createdAt");
+    // console.log('categories result:\n',posts);
+   if(posts.length===0) return res.send({message:`no posts from ${searchcategory} category`,posts})
+    // responsemessage='no posts from '+searchcategory+' category';
+//    return res.send({message:responsemessage})
+
+
+    
+    res.send({posts})
+    } catch (error) {
+        res.send({errormessage:error.message})
+    }
 
 }
 

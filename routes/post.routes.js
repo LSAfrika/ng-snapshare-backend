@@ -5,7 +5,7 @@ const{authentication}=require('../middleware/auth.middleware')
 const{createimagesfolder}=require('../utilities/foldercreation.util')
 // todo    GETTING POST SECTION
 router.get('/allposts',getallposts)
-router.get('/allposts/:category',getcategoryposts)
+router.get('/allposts/category',getcategoryposts)
 router.get('/singlepost/:id',getsinglepost)
 
 
