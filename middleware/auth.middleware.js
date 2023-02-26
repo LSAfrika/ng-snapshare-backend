@@ -74,12 +74,15 @@ exports.signin=async(req,res,next)=>{
                 _id:user._id
             }
             const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
-                expiresIn:'60m'
+                expiresIn:'30s'
             })
-    
+    const refreshtoken=jwt.sign({_id:user._id},process.env.REFRESH_TOKEN,{
+        expiresIn:'1w'
+    })
     
             // res.send({token})
             req.body.token=token
+            req.body.refreshtoken=refreshtoken
             req.body.email=email
             req.body.userid=payload._id
     next();
@@ -165,13 +168,16 @@ exports.authproviderssignin=async(req,res,next)=>{
                 _id:isUserinDb._id,
                 
             }
-            const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
-                expiresIn:'60m'
+               const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
+                expiresIn:'30s'
             })
-    
+    const refreshtoken=jwt.sign({  _id:isUserinDb._id},process.env.REFRESH_TOKEN,{
+        expiresIn:'1w'
+    })
     
             // res.send({token})
             req.body.token=token
+            req.body.refreshtoken=refreshtoken
             req.body.email=payload.email
             req.body.userid=payload._id
     next();
@@ -187,6 +193,50 @@ exports.authproviderssignin=async(req,res,next)=>{
         
     }
 }
+
+exports.refreshtoken=async(req,res)=>{
+    const expiredtoken = req.headers.authorization.split(' ')[1]
+    const refreshtoken = req.headers.refreshtoken.split(' ')[1]
+    let refreshvalue
+    let tokenvalue
+
+    try {
+
+         refreshvalue=await jwt.verify(refreshtoken,process.env.REFRESH_TOKEN)
+         tokenvalue= await jwt.verify(expiredtoken,process.env.SIGNING_TOKEN)
+
+        
+console.log(refreshvalue);
+        console.log(tokenvalue);
+
+        res.send({refreshvalue,tokenvalue})
+        
+    } catch (error) {
+
+
+        if(error.message==='jwt expired'){
+
+            const user=await jwt.decode(expiredtoken);
+
+            if(user._id===refreshvalue._id){
+
+                const finduserinndb=await usermodel.findById(user._id).select("email imgurl _id")
+
+                if(finduserinndb==null)return res.send({message:'no user found'})
+
+                const token=await jwt.sign({finduserinndb},process.env.SIGNING_TOKEN,{
+                    expiresIn:'30s'
+                })
+                
+              return  res.send({token})
+            }
+            res.send({errormessage:error.message})
+        }
+        
+    }
+
+}
+
 
 
 exports.authentication=async(req,res,next)=>{
