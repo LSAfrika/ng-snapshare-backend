@@ -74,7 +74,7 @@ exports.signin=async(req,res,next)=>{
                 _id:user._id
             }
             const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
-                expiresIn:'30s'
+                expiresIn:'600s'
             })
     const refreshtoken=jwt.sign({_id:user._id},process.env.REFRESH_TOKEN,{
         expiresIn:'1w'
@@ -169,7 +169,7 @@ exports.authproviderssignin=async(req,res,next)=>{
                 
             }
                const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
-                expiresIn:'30s'
+                expiresIn:'600s'
             })
     const refreshtoken=jwt.sign({  _id:isUserinDb._id},process.env.REFRESH_TOKEN,{
         expiresIn:'1w'
@@ -195,45 +195,49 @@ exports.authproviderssignin=async(req,res,next)=>{
 }
 
 exports.refreshtoken=async(req,res)=>{
-    const expiredtoken = req.headers.authorization.split(' ')[1]
-    const refreshtoken = req.headers.refreshtoken.split(' ')[1]
-    let refreshvalue
-    let tokenvalue
+    let expiredtoken 
+    let refreshtoken 
+    
 
     try {
+        refreshtoken = req.headers.refreshtoken.split(' ')[1]
+        expiredtoken = req.headers.authorization.split(' ')[1]
+        //  refreshvalue=await jwt.verify(refreshtoken,process.env.REFRESH_TOKEN)
+         refreshdetails=await jwt.decode(refreshtoken)
+         tokendetails= await jwt.decode(expiredtoken)
+        //  console.log(tokendetails);
+         if(refreshdetails._id!==tokendetails._id)  return res.status(401).send({message:'token mismatch log out'})
+            //  console.log(tokendetails._id ,'\n',refreshdetails._id);
 
-         refreshvalue=await jwt.verify(refreshtoken,process.env.REFRESH_TOKEN)
-         tokenvalue= await jwt.verify(expiredtoken,process.env.SIGNING_TOKEN)
+         if(refreshdetails.exp*1000<Date.now()) return res.status(401).send({message:' refresh expired log out'})
+         if(tokendetails.exp*1000<Date.now()){
 
-        
-console.log(refreshvalue);
-        console.log(tokenvalue);
+            if(refreshdetails._id===tokendetails._id){
 
-        res.send({refreshvalue,tokenvalue})
-        
-    } catch (error) {
+                const finduserinndb=await usermodel.findById(refreshdetails._id).select("email imgurl _id")
 
-
-        if(error.message==='jwt expired'){
-
-            const user=await jwt.decode(expiredtoken);
-
-            if(user._id===refreshvalue._id){
-
-                const finduserinndb=await usermodel.findById(user._id).select("email imgurl _id")
-
+                console.log(tokendetails._id ,'\n',refreshdetails._id);
                 if(finduserinndb==null)return res.send({message:'no user found'})
 
-                const token=await jwt.sign({finduserinndb},process.env.SIGNING_TOKEN,{
-                    expiresIn:'30s'
+
+                const refreshpayload={
+                    _id:finduserinndb._id,
+                    imgurl:finduserinndb.imgurl,
+                    email:finduserinndb.email
+                }
+                const token=await jwt.sign({...refreshpayload},process.env.SIGNING_TOKEN,{
+                    expiresIn:'600s'
                 })
                 
-              return  res.send({token})
+              return  res.send({message:"new token",token})
             }
-            res.send({errormessage:error.message})
-        }
+
+         }
+         return  res.send({message:"token not expired",token:expiredtoken})
+         
+      
         
-    }
+    } catch (error) {    res.send({errormessage:error.message})}
 
 }
 
