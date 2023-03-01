@@ -130,6 +130,8 @@ const folder=req.body._id
                 user:req.body.userid,
                 category:req.body.category,
                 caption:req.body.caption,
+                comments:[],
+                likes:[],
                 _id:folder
             }
 
@@ -165,6 +167,8 @@ const folder=req.body._id
                 user:req.body.userid,
                 category:req.body.category,
                 caption:req.body.caption,
+                comments:[],
+                likes:[],
                 _id:folder
 
             }
