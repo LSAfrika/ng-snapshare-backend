@@ -104,8 +104,8 @@ const folder=req.body._id
 
          let filespatharraytosave=[]
          if(allfiles.length === undefined) {
-            
-            let filename= Date.now()+allfiles.name
+            let trimmedfilename=allfiles.name.replace(/ /g,'')
+            let filename= Date.now()+trimmedfilename
             let uploadPath = `public/uploads/${folder}/` +filename;
             let viewpath='http://localhost:4555/'+`uploads/${folder}/${filename}`
             filespatharraytosave.push(viewpath)
