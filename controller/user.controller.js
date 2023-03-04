@@ -90,22 +90,51 @@ console.log(user);
 
 }
 
+exports.checkiffollowinguser=async(req,res)=>{
+    try {
+        const userfollowing=req.params.id
+        const {userid}=req.body
+        console.log('current loggedin user',userid);
+        console.log('user to follow',userfollowing);
+        
+        const user= await usermodel.findById(userid)
+
+        
+        // console.log(user);
+        if(user===null)throw new Error('no user ')
+        if(user.following.includes(userfollowing))return res.send({following:true})
+        res.send({following:false})
+
+    
+        //  const postcount = await postsmodel.find({user:userid}).count()
+
+        
+
+        // res.send({user,postcount})
+        
+    } catch (error) {
+        res.send({errormessage:error.message})
+        
+    }
+
+}
+
 
 exports.followuser=async(req,res)=>{
     try {
         const {userid,usertofollow}=req.body
-console.log('ids',userid,usertofollow);
+// console.log('ids',userid,usertofollow);
         if(userid==usertofollow)return res.send({message:'can not follow self'})
         const usertofollowupdate= await usermodel.findById(usertofollow)
         const userupdatefollowing= await usermodel.findById(userid)
 
-        const formateduserid= `new ObjectId("${userid}")`
-        console.log('formatted id',formateduserid);
+        // const formateduserid= `new ObjectId("${userid}")`
+        // console.log('formatted id',formateduserid);
         if(usertofollowupdate.followers.includes(userid)){
-            console.log('if blockhas been hit');
+            // console.log('if blockhas been hit');
             const userindex=usertofollowupdate.followers.indexOf(userid)
             const followingindex=userupdatefollowing.following.indexOf(usertofollow)
-console.log('indexes',userindex,followingindex  )
+// console.log('indexes',userindex,followingindex  )
 
             usertofollowupdate.followers.splice(userindex,1)
             usertofollowupdate.followerscounter--
@@ -115,12 +144,12 @@ console.log('indexes',userindex,followingindex  )
             userupdatefollowing.followingcounter--
 await userupdatefollowing.save()
 
-res.send({following:userupdatefollowing,follow:usertofollowupdate})
+res.send({user:usertofollowupdate,following:false})
 
 
         }else{
 
-            console.log('else blockhas been hit');
+            // console.log('else blockhas been hit');
 
             usertofollowupdate.followers.push(userid)
             usertofollowupdate.followerscounter++
@@ -129,7 +158,7 @@ res.send({following:userupdatefollowing,follow:usertofollowupdate})
             await usertofollowupdate.save()
             await userupdatefollowing.save()
 
-            res.send({following:userupdatefollowing,follow:usertofollowupdate})
+            res.send({user:usertofollowupdate,following:true})
         }
 
 
