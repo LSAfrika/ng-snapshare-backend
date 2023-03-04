@@ -29,14 +29,21 @@ exports.signup=async(req,res,next)=>{
         const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
             expiresIn:'10m'
         })
+        const refreshtoken=jwt.sign({_id:user._id},process.env.REFRESH_TOKEN,{
+            expiresIn:'1w'
+        })
 
         console.log('sign up token: \n',token);
 
         // res.send({token})
         req.body.token=token
+        req.body.refreshtoken=refreshtoken
+
 next();
 
     } catch (error) {
+
+        console.log('sign in error middleware 46: ',error);
 
         res.send({errormessage:error.message})
         
@@ -76,6 +83,7 @@ exports.signin=async(req,res,next)=>{
             const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
                 expiresIn:'600s'
             })
+            console.log('REFRESH: ',process.env.REFRESH_TOKEN);
     const refreshtoken=jwt.sign({_id:user._id},process.env.REFRESH_TOKEN,{
         expiresIn:'1w'
     })
@@ -93,6 +101,8 @@ exports.signin=async(req,res,next)=>{
         }
 
     } catch (error) {
+
+        console.log('sign in error middleware 97: ',error);
 
         res.send({errormessage:error.message})
         
@@ -146,12 +156,18 @@ exports.authproviderssignin=async(req,res,next)=>{
             const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
                 expiresIn:'60m'
             })
+            console.log('REFRESH: ',process.env.REFRESH_TOKEN);
     
+            const refreshtoken=jwt.sign({  _id:payload._id},process.env.REFRESH_TOKEN,{
+                expiresIn:'1w'
+            })
 //    return res.send(payload)
             // res.send({token})
             req.body.token=token
             req.body.email=payload.email
             req.body.userid=payload._id
+            req.body.refreshtoken=refreshtoken
+
     next();
         }
         else{
@@ -168,6 +184,8 @@ exports.authproviderssignin=async(req,res,next)=>{
                 _id:isUserinDb._id,
                 
             }
+            console.log('REFRESH: ',process.env.REFRESH_TOKEN);
+
                const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
                 expiresIn:'600s'
             })
@@ -188,7 +206,7 @@ exports.authproviderssignin=async(req,res,next)=>{
     
 }catch (error) {
 
-    console.log(error.message)
+    console.log(error)
         res.send({errormessage:error.message})
         
     }

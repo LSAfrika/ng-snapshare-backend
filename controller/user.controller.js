@@ -19,6 +19,7 @@ exports.signinuser=async(req,res)=>{
         res.send({userid,email,token,refreshtoken})
         
     } catch (error) {
+        console.log('sign in error: ',error);
         res.send({errormessage:error.message})
         
     }
