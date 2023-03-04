@@ -6,7 +6,7 @@ const { getnotfications } = require('../controller/notfications.controller')
 const{authentication}=require('../middleware/auth.middleware')
 
 router.use(authentication)
-router.get('/notfications',getnotfications)
+router.get('/notifications',getnotfications)
 
 
 

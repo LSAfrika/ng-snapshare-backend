@@ -18,6 +18,9 @@ exports.postcomment=async(req,res)=>{
 
         if(comment === undefined) throw new Error('please add a comment ')
 
+
+        // const post=await postsmodel.findById()
+
             const createcomment=await commentsmodel.create({post:post._id,comment,ownerid:userid})
 
             if(createcomment){
@@ -25,6 +28,9 @@ exports.postcomment=async(req,res)=>{
                 await post.save()
 
              
+
+                if(createcomment.ownerid.toString()==post.user) return res.send({message:'comment posted succesfully',post})
+                
                 const notificationpayload={
                     commentid:createcomment._id,
                     post:post._id,
