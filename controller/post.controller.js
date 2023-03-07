@@ -6,7 +6,7 @@ const { response } = require('express');
 exports.getallposts=async(req,res)=>{
 
     try {
-        const pagesize = 5;
+        const pagesize = 10;
         let pagination = req.query.pagination;
            
         const posts=await postsmodel.find()
@@ -64,7 +64,7 @@ exports.getsinglepost=async(req,res)=>{
 exports.getcategoryposts=async(req,res)=>{
 
     try {
-        const pagesize = 1;
+        const pagesize = 10;
         let pagination = req.query.pagination;
     const searchcategory=req.query.category
     console.log(searchcategory);
@@ -73,8 +73,34 @@ exports.getcategoryposts=async(req,res)=>{
      .skip(pagination * pagesize)
      .limit(pagesize)
    .populate("user","username imgurl  createdAt");
-    // console.log('categories result:\n',posts);
+     console.log('categories result:\n',posts);
    if(posts.length===0) return res.send({message:`no posts from ${searchcategory} category`,posts})
+    // responsemessage='no posts from '+searchcategory+' category';
+//    return res.send({message:responsemessage})
+
+
+    
+    res.send({posts})
+    } catch (error) {
+        res.send({errormessage:error.message})
+    }
+
+}
+
+exports.getuserposts=async(req,res)=>{
+
+    try {
+        const pagesize = 10;
+        let pagination = req.query.pagination;
+    const postowner=req.query.user
+    console.log(postowner);
+    const posts=await postsmodel.find({user:postowner})
+    .sort({createdAt:-1})
+     .skip(pagination * pagesize)
+     .limit(pagesize)
+   .populate("user","username imgurl  createdAt");
+     console.log('categories result:\n',posts);
+   if(posts.length===0) return res.send({message:`no posts from ${postowner} category`,posts})
     // responsemessage='no posts from '+searchcategory+' category';
 //    return res.send({message:responsemessage})
 
