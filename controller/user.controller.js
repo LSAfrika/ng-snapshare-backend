@@ -132,7 +132,7 @@ exports.getfollowing=async(req,res)=>{
     try {
         const userid=req.params.id
         // let userstoreturncounter=0
-        let splicedfollowers=[]
+        let splicedfollowing=[]
         // let returnfollowers=[]
         const {pagination}=req.query
         console.log('query size',pagination);
@@ -140,16 +140,16 @@ exports.getfollowing=async(req,res)=>{
         const user= await usermodel.findById(userid)
         .select("following ")
         if(user===null)throw new Error('no user ')
-         console.log(user);
-        if(user.following.length===0) return res.send({message:'user is not following any one',splicedfollowers:user.following})
+          console.log(user.following);
+        if(user.following.length===0) return res.send({message:'user is not following any one',splicedfollowing:user.following})
         const splicer=pagination*returnsize
         console.log('splicer',splicer);
         
-          splicedfollowers=user.followers.splice(splicer,returnsize)
-       
+          splicedfollowing=user.following.splice(splicer,returnsize)
+       console.log(splicedfollowing);
 
 
-        res.send({splicedfollowers})
+        res.send({splicedfollowing})
 
         
     } catch (error) {
