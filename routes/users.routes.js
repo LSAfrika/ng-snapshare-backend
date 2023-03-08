@@ -1,10 +1,12 @@
 const express=require('express')
 const router= express.Router()
-const {deleteuser,getuser,signupuser,signinuser,updateuser,getalluser}=require('../controller/user.controller')
+const {deleteuser,getuser,signupuser,signinuser,updateuser,getalluser, getfollowers,getfollowing}=require('../controller/user.controller')
 const{signup,signin,authproviderssignin, refreshtoken}=require('../middleware/auth.middleware')
 
 // router.get('/user',getuser)
 router.get('/singleuser/:id',getuser)
+router.get('/followers/:id',getfollowers)
+router.get('/following/:id',getfollowing)
 router.get('/allusers',getalluser)
 router.post('/signin',signin,signinuser)
 router.post('/refresh',refreshtoken)

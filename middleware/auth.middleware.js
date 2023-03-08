@@ -25,8 +25,8 @@ exports.signup=async(req,res,next)=>{
             username:username,
             _id:createuser._id,
             imgurl:createuser.imgurl,
-            following:0,
-            followers:0
+            following:[],
+            followers:[]
         }
         const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
             expiresIn:'10m'
