@@ -24,7 +24,9 @@ exports.signup=async(req,res,next)=>{
             email:email,
             username:username,
             _id:createuser._id,
-            imgurl:createuser.imgurl
+            imgurl:createuser.imgurl,
+            following:0,
+            followers:0
         }
         const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
             expiresIn:'10m'
@@ -78,14 +80,16 @@ exports.signin=async(req,res,next)=>{
                 email:email,
                 imgurl:user.imgurl,
                 username:user.username,
-                _id:user._id
+                _id:user._id,
+                following:user.following,
+                followers:user.followers
             }
             const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
                 expiresIn:'600s'
             })
-            console.log('REFRESH: ',process.env.REFRESH_TOKEN);
+            // console.log('REFRESH: ',process.env.REFRESH_TOKEN);
     const refreshtoken=jwt.sign({_id:user._id},process.env.REFRESH_TOKEN,{
-        expiresIn:'1w'
+        expiresIn:'3d'
     })
     
             // res.send({token})
@@ -136,6 +140,8 @@ exports.authproviderssignin=async(req,res,next)=>{
                 email:tokenvalue.email,
                 imgurl:tokenvalue.picture,
                 username:tokenvalue.name,
+                following:0,
+                followers:0,
                 hash
             }
 
@@ -159,7 +165,7 @@ exports.authproviderssignin=async(req,res,next)=>{
             console.log('REFRESH: ',process.env.REFRESH_TOKEN);
     
             const refreshtoken=jwt.sign({  _id:payload._id},process.env.REFRESH_TOKEN,{
-                expiresIn:'1w'
+                expiresIn:'3d'
             })
 //    return res.send(payload)
             // res.send({token})
@@ -221,18 +227,21 @@ exports.refreshtoken=async(req,res)=>{
         refreshtoken = req.headers.refreshtoken.split(' ')[1]
         expiredtoken = req.headers.authorization.split(' ')[1]
         //  refreshvalue=await jwt.verify(refreshtoken,process.env.REFRESH_TOKEN)
+
+        console.log('token to refresh \n',refreshtoken);
+        console.log('expired token  \n',expiredtoken);
          refreshdetails=await jwt.decode(refreshtoken)
          tokendetails= await jwt.decode(expiredtoken)
         //  console.log(tokendetails);
-         if(refreshdetails._id!==tokendetails._id)  return res.status(401).send({message:'token mismatch log out'})
+         if(refreshdetails._id!==tokendetails._id)  return res.status(401).send({message:'tokenmismatch'})
             //  console.log(tokendetails._id ,'\n',refreshdetails._id);
 
-         if(refreshdetails.exp*1000<Date.now()) return res.status(401).send({message:' refresh expired log out'})
+         if(refreshdetails.exp*1000<Date.now()) return res.status(401).send({message:'refreshexpired'})
          if(tokendetails.exp*1000<Date.now()){
 
             if(refreshdetails._id===tokendetails._id){
 
-                const finduserinndb=await usermodel.findById(refreshdetails._id).select("email imgurl _id")
+                const finduserinndb=await usermodel.findById(refreshdetails._id).select("email imgurl _id follow following")
 
                 console.log(tokendetails._id ,'\n',refreshdetails._id);
                 if(finduserinndb==null)return res.send({message:'no user found'})
@@ -241,7 +250,9 @@ exports.refreshtoken=async(req,res)=>{
                 const refreshpayload={
                     _id:finduserinndb._id,
                     imgurl:finduserinndb.imgurl,
-                    email:finduserinndb.email
+                    email:finduserinndb.email,
+                    following:finduserinndb.following,
+                    followers:finduserinndb.followers
                 }
                 const token=await jwt.sign({...refreshpayload},process.env.SIGNING_TOKEN,{
                     expiresIn:'600s'
@@ -255,7 +266,12 @@ exports.refreshtoken=async(req,res)=>{
          
       
         
-    } catch (error) {    res.send({errormessage:error.message})}
+    } catch (error) { 
+        
+
+        
+        
+        res.send({errormessage:error.message})}
 
 }
 

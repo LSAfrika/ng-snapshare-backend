@@ -6,7 +6,7 @@ const{createimagesfolder}=require('../utilities/foldercreation.util')
 // todo    GETTING POST SECTION
 router.get('/allposts',getallposts)
 router.get('/allposts/category',getcategoryposts)
-router.get('/allposts/user',getuserposts)
+router.get('/allposts/user/',getuserposts)
 router.get('/singlepost/:id',getsinglepost)
 
 

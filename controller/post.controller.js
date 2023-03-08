@@ -13,7 +13,7 @@ exports.getallposts=async(req,res)=>{
          .sort({createdAt:-1})
           .skip(pagination * pagesize)
           .limit(pagesize)
-         .populate("user","username imgurl  createdAt");
+         .populate("user","username imgurl  createdAt following followers");
 
         //  console.logposts.createdAt);
          res.send({posts})
@@ -90,17 +90,17 @@ exports.getcategoryposts=async(req,res)=>{
 exports.getuserposts=async(req,res)=>{
 
     try {
-        const pagesize = 10;
+        const pagesize = 5;
         let pagination = req.query.pagination;
     const postowner=req.query.user
-    console.log(postowner);
+    console.log(pagination,postowner);
     const posts=await postsmodel.find({user:postowner})
     .sort({createdAt:-1})
      .skip(pagination * pagesize)
      .limit(pagesize)
    .populate("user","username imgurl  createdAt");
-     console.log('categories result:\n',posts);
-   if(posts.length===0) return res.send({message:`no posts from ${postowner} category`,posts})
+    //  console.log('categories result:\n',posts);
+//    if(posts.length===0) return res.send({message:`no posts from ${postowner} category`,posts})
     // responsemessage='no posts from '+searchcategory+' category';
 //    return res.send({message:responsemessage})
 

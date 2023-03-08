@@ -54,14 +54,15 @@ exports.updateuser=async(req,res)=>{
 exports.getuser=async(req,res)=>{
     try {
         const userid=req.params.id
-        const singleuser= await usermodel.findById(userid).select("_id username imgurl createdAt email")
-        if(singleuser===null)throw new Error('no user ')
+        const user= await usermodel.findById(userid).select("_id username imgurl createdAt email following followers")
+        if(user===null)throw new Error('no user ')
 
-        const userposts = await postsmodel.find({user:userid}).limit(5)
+        // const userposts = await postsmodel.find({user:userid}).limit(1)
+        const totaluserposts = await postsmodel.find({user:userid}).count()
 
-        if(userposts.length === 0) return res.send(singleuser)
+        // if(userposts.length === 0) return res.send(user)
 
-        res.send({singleuser,userposts})
+        res.send({user,totaluserposts})
         
     } catch (error) {
         res.send({errormessage:error.message})
