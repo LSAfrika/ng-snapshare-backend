@@ -13,7 +13,7 @@ exports.getallposts=async(req,res)=>{
          .sort({createdAt:-1})
           .skip(pagination * pagesize)
           .limit(pagesize)
-         .populate("user","username imgurl  createdAt following followers");
+         .populate("user","username imgurl  createdAt followerscounter followingcounter");
 
         //  console.logposts.createdAt);
          res.send({posts})
@@ -33,7 +33,7 @@ exports.getsinglepost=async(req,res)=>{
         
         const id=req.params.id
         const singlepost=await postsmodel.findById({_id:id})
-        .populate({path:"user",select:"imgurl _id username",model:"USER" })
+        .populate({path:"user",select:"imgurl _id username followerscounter followingcounter",model:"USER" })
          .populate(
         {path:'comments',
          select:"comment ownerid _id updatedAt createdAt",

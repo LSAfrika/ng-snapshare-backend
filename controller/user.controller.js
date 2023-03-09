@@ -54,11 +54,29 @@ exports.updateuser=async(req,res)=>{
 exports.getuser=async(req,res)=>{
     try {
         const userid=req.params.id
+        // const userfollowingandfollowers= await usermodel.findById(userid)
+        // const followingcount= userfollowingandfollowers.following.length
+        // const followerscount= userfollowingandfollowers.followers.length
+
+        // userfollowingandfollowers.followerscounter=followerscount
+        // userfollowingandfollowers.followingcounter=followingcounter
+
+        // await userfollowingandfollowers.save()
         const user= await usermodel.findById(userid)
-        .select("_id username imgurl createdAt email following followers")
+        .select("_id username imgurl createdAt email followerscounter followingcounter ")
+
         if(user===null)throw new Error('no user ')
 
         // const userposts = await postsmodel.find({user:userid}).limit(1)
+
+        // const returneduser={
+        //     _id:user._id,
+        //     email:user.email,
+        //     imgurl:user.imgurl,
+        //     createdAt:user.createdAt,
+        //     followingcounter:followingcount,
+        //     followerscounter:followerscount
+        // }
          const postcount = await postsmodel.find({user:userid}).count()
 
         // if(userposts.length === 0) return res.send(user)
@@ -74,8 +92,14 @@ exports.getuser=async(req,res)=>{
 
 exports.getalluser=async(req,res)=>{
     try {
-        const allusers= await usermodel.find().select("_id username imgurl createdAt email following followers")
-        
+        const allusers= await usermodel.find().select("_id username imgurl createdAt email followingcounter followerscounter")
+        // console.log(allusers);
+        // allusers.forEach(async(user) => {
+        //     user.followerscounter=user.followers.length
+        //     user.followingcounter=user.following.length
+        //     await user.save()
+            
+        // });
         res.send(allusers)
     } catch (error) {
         res.send({errormessage:error.message})

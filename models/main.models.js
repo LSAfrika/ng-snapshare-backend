@@ -36,6 +36,8 @@ exports.postsmodel = mongoose.model(
       {
         following:[{type:mongoose.Schema.Types.ObjectId,ref:'users'}],
         followers:[{type:mongoose.Schema.Types.ObjectId,ref:'users'}],
+        followingcounter:{type:Number,default:0,required:true},
+        followerscounter:{type:Number,default:0,required:true},
         username: { type: String, required: true },
         firebaseuid: { type: String},
         imgurl: { type: String,required:true,default:'http://localhost:4555/defaultpic/profile.png'},
