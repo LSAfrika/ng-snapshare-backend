@@ -63,8 +63,8 @@ exports.getuser=async(req,res)=>{
 
         // await userfollowingandfollowers.save()
         const user= await usermodel.findById(userid)
-        .select("_id username imgurl createdAt email followerscounter followingcounter ")
-
+        // .select("_id username imgurl createdAt email followerscounter followingcounter ")
+console.log(user);
         if(user===null)throw new Error('no user ')
 
         // const userposts = await postsmodel.find({user:userid}).limit(1)
@@ -88,6 +88,57 @@ exports.getuser=async(req,res)=>{
         
     }
 
+}
+
+
+exports.followuser=async(req,res)=>{
+    try {
+        const {userid,usertofollow}=req.body
+console.log('ids',userid,usertofollow);
+        if(userid==usertofollow)return res.send({message:'can not follow self'})
+        const usertofollowupdate= await usermodel.findById(usertofollow)
+        const userupdatefollowing= await usermodel.findById(userid)
+
+        const formateduserid= `new ObjectId("${userid}")`
+        console.log('formatted id',formateduserid);
+        if(usertofollowupdate.followers.includes(userid)){
+            console.log('if blockhas been hit');
+            const userindex=usertofollowupdate.followers.indexOf(userid)
+            const followingindex=userupdatefollowing.following.indexOf(usertofollow)
+console.log('indexes',userindex,followingindex  )
+
+            usertofollowupdate.followers.splice(userindex,1)
+            usertofollowupdate.followerscounter--
+            await usertofollowupdate.save()
+
+            userupdatefollowing.following.splice(followingindex,1)
+            userupdatefollowing.followingcounter--
+await userupdatefollowing.save()
+
+res.send({following:userupdatefollowing,follow:usertofollowupdate})
+
+
+        }else{
+
+            console.log('else blockhas been hit');
+
+            usertofollowupdate.followers.push(userid)
+            usertofollowupdate.followerscounter++
+            userupdatefollowing.following.push(usertofollow)
+            userupdatefollowing.followingcounter++
+            await usertofollowupdate.save()
+            await userupdatefollowing.save()
+
+            res.send({following:userupdatefollowing,follow:usertofollowupdate})
+        }
+
+
+    } catch (error) {
+
+        console.log(error.message);
+        res.send(error)
+        
+    }
 }
 
 exports.getalluser=async(req,res)=>{
