@@ -49,7 +49,7 @@ exports.updateuser=async(req,res)=>{
 
      console.log('user id',userid);
      console.log('username',username)
-    //  console.log('files',req.files.profilepic.mimetype)
+    //  console.log('files',req.files.profilepic.mimetype)  
 
      const updateuser= await usermodel.findById(userid)
      

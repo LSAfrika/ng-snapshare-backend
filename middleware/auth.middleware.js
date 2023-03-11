@@ -250,7 +250,7 @@ exports.refreshtoken=async(req,res)=>{
 
             if(refreshdetails._id===tokendetails._id){
 
-                const finduserinndb=await usermodel.findById(refreshdetails._id).select("email imgurl _id followerscounter followingcounter")
+                const finduserinndb=await usermodel.findById(refreshdetails._id).select("email imgurl username _id followerscounter followingcounter")
 
                 console.log(tokendetails._id ,'\n',refreshdetails._id);
                 if(finduserinndb==null)return res.send({message:'no user found'})
