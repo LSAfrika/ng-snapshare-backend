@@ -1,5 +1,7 @@
 const {usermodel,postsmodel}=require('../models/main.models')
-
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
+ 
 exports.signupuser=async(req,res)=>{
 
     try {
@@ -43,7 +45,106 @@ exports.authprovidersignin=async(req,res)=>{
 exports.updateuser=async(req,res)=>{
 
     try {
-        res.send('update user hit')
+     const {userid,username}=req.body
+
+     console.log('user id',userid);
+     console.log('username',username)
+    //  console.log('files',req.files.profilepic.mimetype)
+
+     const updateuser= await usermodel.findById(userid)
+     
+     //  return
+     if(updateuser==null) return res.status(404).send({message:'no user found'})
+     
+     if(req.files){
+        let allfiles=req.files.profilepic
+        extension=req.files.profilepic.mimetype.split('/')[1]
+        // if(allfiles.length === undefined) {
+            // let trimmedfilename=allfiles.name.replace(/ /g,'')
+            let filename= userid+'.'+extension
+
+            console.log(filename);
+            let uploadPath = `public/profilepic/` +filename;
+            let viewpath='http://localhost:4555/'+`profilepic/${filename}`
+            // filespatharraytosave.push(viewpath)
+
+            allfiles.mv(uploadPath, function(err) {
+                if (err) {
+                  return res.status(500).send(err);
+                }
+            
+                     console.log('updated profile: ',viewpath);
+                    //  res.send('File successfully uploaded ' );
+                    
+                    
+                    
+                        
+                    });
+
+        // console.log('single file save: \n',filespatharraytosave);
+        updateuser.imgurl=viewpath
+        if(username !=undefined && username!='')updateuser.username=username
+        console.log(updateuser.username);           
+            
+await updateuser.save()
+        
+const payload={
+    _id:updateuser._id,
+    email:updateuser.email,
+    imgurl:updateuser.imgurl,
+    username:updateuser.username,
+    followerscounter:updateuser.followerscounter,
+    followingcounter:updateuser.followingcounter
+}
+        
+const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
+    expiresIn:'60m'
+})
+// console.log('REFRESH: ',process.env.REFRESH_TOKEN);
+
+const refreshtoken=jwt.sign({  _id:payload._id},process.env.REFRESH_TOKEN,{
+    expiresIn:'3d'
+})
+
+
+        return    res.send({
+            token,
+            refreshtoken,
+            message:'user updated successfully'})
+
+         
+        }
+
+        if(username !=undefined && username!='')updateuser.username=username
+        console.log(updateuser.username);           
+            
+await updateuser.save()
+        
+const payload={
+    _id:updateuser._id,
+    email:updateuser.email,
+    imgurl:updateuser.imgurl,
+    username:updateuser.username,
+    followerscounter:updateuser.followerscounter,
+    followingcounter:updateuser.followingcounter
+}
+        
+const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
+    expiresIn:'60m'
+})
+// console.log('REFRESH: ',process.env.REFRESH_TOKEN);
+
+const refreshtoken=jwt.sign({  _id:payload._id},process.env.REFRESH_TOKEN,{
+    expiresIn:'3d'
+})
+
+
+            res.send({
+            token,
+            refreshtoken,
+            message:'user updated successfully'})
+
+
     } catch (error) {
         res.send({errormessage:error.message})
         
@@ -98,19 +199,16 @@ exports.checkiffollowinguser=async(req,res)=>{
         console.log('user to follow',userfollowing);
         
         const user= await usermodel.findById(userid)
+        const userfollow= await usermodel.findById(userfollowing)
 
         
         // console.log(user);
         if(user===null)throw new Error('no user ')
-        if(user.following.includes(userfollowing))return res.send({following:true})
-        res.send({following:false})
+        if(user.following.includes(userfollowing))return res.send({user:userfollow,following:true})
+        res.send({user:userfollow,following:false})
 
     
-        //  const postcount = await postsmodel.find({user:userid}).count()
-
-        
-
-        // res.send({user,postcount})
+       
         
     } catch (error) {
         res.send({errormessage:error.message})
@@ -124,9 +222,9 @@ exports.followuser=async(req,res)=>{
     try {
         const {userid,usertofollow}=req.body
 // console.log('ids',userid,usertofollow);
-        if(userid==usertofollow)return res.send({message:'can not follow self'})
-        const usertofollowupdate= await usermodel.findById(usertofollow)
-        const userupdatefollowing= await usermodel.findById(userid)
+const usertofollowupdate= await usermodel.findById(usertofollow)
+const userupdatefollowing= await usermodel.findById(userid)
+if(userid==usertofollow)return res.send({user:userupdatefollowing,message:'can not follow self'})
 
         // const formateduserid= `new ObjectId("${userid}")`
         // console.log('formatted id',formateduserid);

@@ -15,7 +15,7 @@ router.post('/signin',signin,signinuser)
 router.post('/refresh',refreshtoken)
 router.post('/authprovidersignin',authproviderssignin,signinuser)
 router.post('/signup',signup,signupuser)
-router.patch('/update/:id',updateuser)
+router.patch('/update/',authentication,updateuser)
 router.delete('/delete/:id',deleteuser)
 
 module.exports=router

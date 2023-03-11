@@ -26,7 +26,9 @@ exports.signup=async(req,res,next)=>{
             _id:createuser._id,
             imgurl:createuser.imgurl,
             following:[],
-            followers:[]
+            followers:[],
+            followerscounter:0,
+            followingcounter:0
         }
         const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
             expiresIn:'10m'
@@ -82,7 +84,9 @@ exports.signin=async(req,res,next)=>{
                 username:user.username,
                 _id:user._id,
                 following:user.following,
-                followers:user.followers
+                followers:user.followers,
+                followerscounter:user.followerscounter,
+                followingcounter:user.followingcounter
             }
             const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
                 expiresIn:'600s'
@@ -140,8 +144,10 @@ exports.authproviderssignin=async(req,res,next)=>{
                 email:tokenvalue.email,
                 imgurl:tokenvalue.picture,
                 username:tokenvalue.name,
-                following:0,
-                followers:0,
+                followingcounter:0,
+                followerscounter:0,
+                followers:[],
+                following:[],
                 hash
             }
 
@@ -188,9 +194,11 @@ exports.authproviderssignin=async(req,res,next)=>{
                 imgurl:isUserinDb.imgurl,
                 username:isUserinDb.username,
                 _id:isUserinDb._id,
-                
+                followingcounter:isUserinDb.followingcounter,
+                followerscounter:isUserinDb.followerscounter
             }
-            console.log('REFRESH: ',process.env.REFRESH_TOKEN);
+            console.log(payload);
+            // console.log('REFRESH: ',process.env.REFRESH_TOKEN);
 
                const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
                 expiresIn:'600s'
@@ -204,6 +212,7 @@ exports.authproviderssignin=async(req,res,next)=>{
             req.body.refreshtoken=refreshtoken
             req.body.email=payload.email
             req.body.userid=payload._id
+            req.body.username=payload.username
     next();
 
      
@@ -241,7 +250,7 @@ exports.refreshtoken=async(req,res)=>{
 
             if(refreshdetails._id===tokendetails._id){
 
-                const finduserinndb=await usermodel.findById(refreshdetails._id).select("email imgurl _id follow following")
+                const finduserinndb=await usermodel.findById(refreshdetails._id).select("email imgurl _id followerscounter followingcounter")
 
                 console.log(tokendetails._id ,'\n',refreshdetails._id);
                 if(finduserinndb==null)return res.send({message:'no user found'})
@@ -249,10 +258,11 @@ exports.refreshtoken=async(req,res)=>{
 
                 const refreshpayload={
                     _id:finduserinndb._id,
+                    username:finduserinndb.username,
                     imgurl:finduserinndb.imgurl,
                     email:finduserinndb.email,
-                    following:finduserinndb.following,
-                    followers:finduserinndb.followers
+                    followingcounter:finduserinndb.followingcounter,
+                    followerscounter:finduserinndb.followerscounter
                 }
                 const token=await jwt.sign({...refreshpayload},process.env.SIGNING_TOKEN,{
                     expiresIn:'600s'
