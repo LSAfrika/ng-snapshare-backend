@@ -57,7 +57,9 @@ exports.updateuser=async(req,res)=>{
      if(updateuser==null) return res.status(404).send({message:'no user found'})
      
      if(req.files){
+
         let allfiles=req.files.profilepic
+console.log('update image',allfiles);
         extension=req.files.profilepic.mimetype.split('/')[1]
         // if(allfiles.length === undefined) {
             // let trimmedfilename=allfiles.name.replace(/ /g,'')
@@ -107,45 +109,52 @@ const refreshtoken=jwt.sign({  _id:payload._id},process.env.REFRESH_TOKEN,{
 })
 
 
+// console.log('token: ',token,'refresh: ',refreshtoken);
+
         return    res.send({
             token,
             refreshtoken,
             message:'user updated successfully'})
 
          
+        
+        }else{
+
+            if(username !=undefined && username!='')updateuser.username=username
+            console.log(updateuser.username);           
+                
+    await updateuser.save()
+            
+    const payload={
+        _id:updateuser._id,
+        email:updateuser.email,
+        imgurl:updateuser.imgurl,
+        username:updateuser.username,
+        followerscounter:updateuser.followerscounter,
+        followingcounter:updateuser.followingcounter
+    }
+            
+    const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
+        expiresIn:'60m'
+    })
+    // console.log('REFRESH: ',process.env.REFRESH_TOKEN);
+    
+    const refreshtoken=jwt.sign({  _id:payload._id},process.env.REFRESH_TOKEN,{
+        expiresIn:'3d'
+    })
+    
+    
+                res.send({
+                token,
+                refreshtoken,
+                message:'user updated successfully'})
         }
 
-        if(username !=undefined && username!='')updateuser.username=username
-        console.log(updateuser.username);           
-            
-await updateuser.save()
-        
-const payload={
-    _id:updateuser._id,
-    email:updateuser.email,
-    imgurl:updateuser.imgurl,
-    username:updateuser.username,
-    followerscounter:updateuser.followerscounter,
-    followingcounter:updateuser.followingcounter
-}
-        
-const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
-    expiresIn:'60m'
-})
-// console.log('REFRESH: ',process.env.REFRESH_TOKEN);
-
-const refreshtoken=jwt.sign({  _id:payload._id},process.env.REFRESH_TOKEN,{
-    expiresIn:'3d'
-})
-
-
-            res.send({
-            token,
-            refreshtoken,
-            message:'user updated successfully'})
 
 
     } catch (error) {
+
+        console.log(error);
         res.send({errormessage:error.message})
         
     }
@@ -163,8 +172,7 @@ exports.getuser=async(req,res)=>{
         // userfollowingandfollowers.followingcounter=followingcounter
 
         // await userfollowingandfollowers.save()
-        const user= await usermodel.findById(userid)
-        // .select("_id username imgurl createdAt email followerscounter followingcounter ")
+        const user= await usermodel.findById(userid) .select("_id username imgurl createdAt email followerscounter followingcounter ")
 console.log(user);
         if(user===null)throw new Error('no user ')
 
