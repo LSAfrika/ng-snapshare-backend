@@ -83,8 +83,6 @@ exports.signin=async(req,res,next)=>{
                 imgurl:user.imgurl,
                 username:user.username,
                 _id:user._id,
-                following:user.following,
-                followers:user.followers,
                 followerscounter:user.followerscounter,
                 followingcounter:user.followingcounter
             }

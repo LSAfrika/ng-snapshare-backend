@@ -207,7 +207,7 @@ exports.checkiffollowinguser=async(req,res)=>{
         console.log('user to follow',userfollowing);
         
         const user= await usermodel.findById(userid)
-        const userfollow= await usermodel.findById(userfollowing)
+        const userfollow= await usermodel.findById(userfollowing).select('_id username imgurl createdAt email followerscounter followingcounter ')
 
         
         // console.log(user);
