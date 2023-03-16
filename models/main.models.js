@@ -91,7 +91,7 @@ exports.postsmodel = mongoose.model(
           from:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
           to:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
           viewed:{type:Boolean,required:true,default:false},
-          edited:{type:Boolean,required:true,default:false},
+          // edited:{type:Boolean,required:true,default:false},
 
         },
         { timestamps: true }

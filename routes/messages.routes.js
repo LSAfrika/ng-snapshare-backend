@@ -6,11 +6,11 @@ const{directmessage,retrieveusermessages}=require('../controller/messages.contro
 
 router.use(authentication)
 router.get('/getallmessages')
-router.get('/getusermessage/:chatid',retrieveusermessages)
+router.get('/getusermessage/:currentchat',retrieveusermessages)
 
 
 
-router.post('/:chatid',directmessage)
+router.post('/',directmessage)
 router.delete('/deletemessage/:userchat')
 
 
