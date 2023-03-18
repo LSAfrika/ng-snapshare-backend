@@ -64,7 +64,7 @@ exports.signin=async(req,res,next)=>{
         if(validemail === false) return res.status(409).send('please enter valid email')
         const user = await usermodel.findOne({email})
 
-        console.log('sigin user \n',user);
+        // console.log('sigin user \n',user);
 
         if(user === null) throw new Error('no user found')
 
@@ -75,7 +75,7 @@ exports.signin=async(req,res,next)=>{
             const passwordvalidation=await argon2.verify(passwordhash, password)
 
             if(passwordvalidation === false) throw new Error('credentials missmatch')
-            console.log('password verification: ',passwordvalidation);
+            // console.log('password verification: ',passwordvalidation);
 
 
             const payload={
@@ -108,7 +108,7 @@ exports.signin=async(req,res,next)=>{
 
     } catch (error) {
 
-        console.log('sign in error middleware 97: ',error);
+        console.log('sign in error middleware 111: ',error);
 
         res.send({errormessage:error.message})
         
@@ -132,7 +132,7 @@ exports.authproviderssignin=async(req,res,next)=>{
         if(tokenvalue.aud!=="snapshare-ke")throw new Error('auth provider miss match aud')
 
         const isUserinDb= await usermodel.findOne({email:tokenvalue.email})
-        console.log('user in db',isUserinDb);
+        // console.log('user in db',isUserinDb);
         // console.log('token value',tokenvalue.email);
         if(isUserinDb===null){
 
@@ -166,7 +166,7 @@ exports.authproviderssignin=async(req,res,next)=>{
             const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
                 expiresIn:'60m'
             })
-            console.log('REFRESH: ',process.env.REFRESH_TOKEN);
+            // console.log('REFRESH: ',process.env.REFRESH_TOKEN);
     
             const refreshtoken=jwt.sign({  _id:payload._id},process.env.REFRESH_TOKEN,{
                 expiresIn:'3d'
@@ -195,7 +195,7 @@ exports.authproviderssignin=async(req,res,next)=>{
                 followingcounter:isUserinDb.followingcounter,
                 followerscounter:isUserinDb.followerscounter
             }
-            console.log(payload);
+            // console.log(payload);
             // console.log('REFRESH: ',process.env.REFRESH_TOKEN);
 
                const token = jwt.sign(payload,process.env.SIGNING_TOKEN,{
@@ -235,8 +235,8 @@ exports.refreshtoken=async(req,res)=>{
         expiredtoken = req.headers.authorization.split(' ')[1]
         //  refreshvalue=await jwt.verify(refreshtoken,process.env.REFRESH_TOKEN)
 
-        console.log('token to refresh \n',refreshtoken);
-        console.log('expired token  \n',expiredtoken);
+        // console.log('token to refresh \n',refreshtoken);
+        // console.log('expired token  \n',expiredtoken);
          refreshdetails=await jwt.decode(refreshtoken)
          tokendetails= await jwt.decode(expiredtoken)
         //  console.log(tokendetails);
@@ -250,7 +250,7 @@ exports.refreshtoken=async(req,res)=>{
 
                 const finduserinndb=await usermodel.findById(refreshdetails._id).select("email imgurl username _id followerscounter followingcounter")
 
-                console.log(tokendetails._id ,'\n',refreshdetails._id);
+                // console.log(tokendetails._id ,'\n',refreshdetails._id);
                 if(finduserinndb==null)return res.send({message:'no user found'})
 
 

@@ -93,7 +93,7 @@ exports.getuserposts=async(req,res)=>{
         const pagesize = 5;
         let pagination = req.query.pagination;
     const postowner=req.query.user
-    console.log(pagination,postowner);
+    // console.log(pagination,postowner);
     const posts=await postsmodel.find({user:postowner})
     .sort({createdAt:-1})
      .skip(pagination * pagesize)

@@ -164,28 +164,12 @@ const refreshtoken=jwt.sign({  _id:payload._id},process.env.REFRESH_TOKEN,{
 exports.getuser=async(req,res)=>{
     try {
         const userid=req.params.id
-        // const userfollowingandfollowers= await usermodel.findById(userid)
-        // const followingcount= userfollowingandfollowers.following.length
-        // const followerscount= userfollowingandfollowers.followers.length
-
-        // userfollowingandfollowers.followerscounter=followerscount
-        // userfollowingandfollowers.followingcounter=followingcounter
-
-        // await userfollowingandfollowers.save()
+   
         const user= await usermodel.findById(userid) .select("_id username imgurl createdAt email followerscounter followingcounter ")
-console.log(user);
+
         if(user===null)throw new Error('no user ')
 
-        // const userposts = await postsmodel.find({user:userid}).limit(1)
-
-        // const returneduser={
-        //     _id:user._id,
-        //     email:user.email,
-        //     imgurl:user.imgurl,
-        //     createdAt:user.createdAt,
-        //     followingcounter:followingcount,
-        //     followerscounter:followerscount
-        // }
+    
          const postcount = await postsmodel.find({user:userid}).count()
 
         // if(userposts.length === 0) return res.send(user)
@@ -203,8 +187,8 @@ exports.checkiffollowinguser=async(req,res)=>{
     try {
         const userfollowing=req.params.id
         const {userid}=req.body
-        console.log('current loggedin user',userid);
-        console.log('user to follow',userfollowing);
+        // console.log('current loggedin user',userid);
+        // console.log('user to follow',userfollowing);
         
         const user= await usermodel.findById(userid)
         const userfollow= await usermodel.findById(userfollowing).select('_id username imgurl createdAt email followerscounter followingcounter ')
@@ -314,7 +298,7 @@ exports.getfollowers=async(req,res)=>{
         let splicedfollowers=[]
         // let returnfollowers=[]
         const {pagination}=req.query
-        console.log('query size',pagination);
+        // console.log('query size',pagination);
         const returnsize=10
         const user= await usermodel.findById(userid)
         .select("followers ")
@@ -322,7 +306,7 @@ exports.getfollowers=async(req,res)=>{
         // console.log(user);
         if(user.followers.length===0) return res.send({message:'user has no followers',splicedfollowers:user.followers})
         const splicer=pagination*returnsize
-        console.log('splicer',splicer);
+        // console.log('splicer',splicer);
         
           splicedfollowers=user.followers.splice(splicer,returnsize)
        
@@ -345,18 +329,18 @@ exports.getfollowing=async(req,res)=>{
         let splicedfollowing=[]
         // let returnfollowers=[]
         const {pagination}=req.query
-        console.log('query size',pagination);
+        // console.log('query size',pagination);
         const returnsize=10
         const user= await usermodel.findById(userid)
         .select("following ")
         if(user===null)throw new Error('no user ')
-          console.log(user.following);
+        //   console.log(user.following);
         if(user.following.length===0) return res.send({message:'user is not following any one',splicedfollowing:user.following})
         const splicer=pagination*returnsize
-        console.log('splicer',splicer);
+        // console.log('splicer',splicer);
         
           splicedfollowing=user.following.splice(splicer,returnsize)
-       console.log(splicedfollowing);
+    //    console.log(splicedfollowing);
 
 
         res.send({splicedfollowing})
