@@ -1,4 +1,4 @@
-const {messagesmodel,notficationsmodel}=require('../models/main.models')
+const {messagesmodel,notficationsmodel,usermessagesmodel}=require('../models/main.models')
 
 
 module.exports = (server)=> {
@@ -6,12 +6,43 @@ module.exports = (server)=> {
 
 
     let onlineusers=[]
-    console.log('socket file being reached:\n');
+    // console.log('socket file being reached:\n');
     const io = require("socket.io")(server,{cors:{origin:['http://localhost:4200']}});
-    io.on("connection", (socket) => {
-       socket.emit("hello", "world");
-       console.log("New Connection",socket.id);
-userconnect(socket)
+
+
+    function newusermiddlware(socket,next){
+
+        // console.log('handshake: \n',socket.handshake.query);
+        if (socket.handshake.query && socket.handshake.query.uid){
+        //   console.log('current uid', socket.handshake.query.uid);
+            if (socket.handshake.query.uid===undefined ||socket.handshake.query.uid===''){
+                console.log('missing uid');
+                return next(new Error('Authentication error'));
+            
+            }
+
+            const newuserlist=    onlineusers.filter(user=>user.uid!==socket.handshake.query.uid)
+            onlineusers=newuserlist
+            const onlineuser={soketid:socket.id,uid:socket.handshake.query.uid}
+            onlineusers.push(onlineuser)
+            console.log(onlineusers);
+            next();
+          
+        }
+        else {
+
+            console.log(socket);
+          next(new Error('no unique user'));
+        }    
+      }
+
+
+
+// use(newusermiddlware).
+    io.use(newusermiddlware).on("connection", (socket) => {
+    //    socket.emit("hello", "world");
+    //    console.log("New Connection",socket.handshake.query);
+// userconnect(socket)
 sendmessage(socket)
 
 
@@ -30,10 +61,12 @@ disconnect(socket)
 
             console.log('current array value list');
             console.log(socket.id)
-        const newuserlist=    onlineusers.filter(user=>user.socketid!==socket.id)
-        onlineusers=newuserlist
+        const disconnectinguserindex=    onlineusers.map(user=>user.soketid).indexOf(socket.id)
+        onlineusers.splice(disconnectinguserindex,1)
+        console.log('index of offline user',disconnectinguserindex);
+        // onlineusers=newuserlist
              console.log('user disconnected',onlineusers);
-          });
+          }); 
     }
 
  const userconnect=(socket)=>{
@@ -50,6 +83,7 @@ disconnect(socket)
  const sendmessage=(socket)=>{
      
     socket.on('message-sent',async(messagepayload)=>{
+        console.log('payload being received',messagepayload);
         const isuseronline=onlineusers.map(user=> user.uid).includes(messagepayload.to)
         console.log('online users',isuseronline);
         console.log(messagepayload)
@@ -67,8 +101,10 @@ if(messagecheckone==null&&messagechecktwo==null){
         from:messagepayload.from,
         chatuid:fromid
     }
-
     const sentmessage=await messagesmodel.create({...messagetosend})
+
+     await usermessagesmodel.create({_id:messagetosend.from,userchats:[{chatid:messagetosend.chatuid,lastmessage:messagetosend.message}]})
+     await usermessagesmodel.create( {_id:messagetosend.to,userchats:[{chatid:messagetosend.chatuid,lastmessage:messagetosend.message}]})
     console.log('new message thread',sentmessage);
 
 }
@@ -83,6 +119,34 @@ if(messagecheckone !=null){
     }
 
     const sentmessage=await messagesmodel.create({...messagetosend})
+//todo ==========================================================================================================================
+
+   const from= await usermessagesmodel.findById(messagetosend.from)
+   const to= await usermessagesmodel.findById(messagetosend.to)
+
+//todo ==========================================================================================================================
+
+   const indexoffromchat=from.userchats.map(msg=>msg.chatid).indexOf(messagetosend.from)
+   const indexoftochat=to.userchats.map(msg=>msg.chatid).indexOf(messagetosend.to)
+   console.log('index of from chat to update: ',indexoffromchat);
+   console.log('index of to chat to update: ',indexoftochat);
+  
+   
+   
+   //todo ==========================================================================================================================
+   
+   
+   
+   from.userchats.splice(indexoffromchat,1)
+   to.userchats.splice(indexoftochat,1)
+   from.userchats.push({chatuid:messagetosend.chatuid,lastmessage:messagetosend.message})
+   to.userchats.push({chatuid:messagetosend.chatuid,lastmessage:messagetosend.message})
+
+   //todo ==========================================================================================================================
+
+await from.save()
+await to.save()
+    // await usermessagesmodel.create( {_id:messagetosend.to,userchats:[{chatid:messagetosend.chatuid,lastmessage:messagetosend.message}]})
     console.log(' message thread 1',sentmessage);
 
     // return res.send({message:'message sent successfully',sentmessage})
@@ -102,6 +166,35 @@ if(messagechecktwo !=null){
     const sentmessage=await messagesmodel.create({...messagetosend})
     console.log(' message thread 2',sentmessage);
 
+
+    
+//todo ==========================================================================================================================
+
+   const from= await usermessagesmodel.findById(messagetosend.from)
+   const to= await usermessagesmodel.findById(messagetosend.to)
+
+//todo ==========================================================================================================================
+
+   const indexoffromchat=from.userchats.map(msg=>msg.chatid).indexOf(messagetosend.from)
+   const indexoftochat=to.userchats.map(msg=>msg.chatid).indexOf(messagetosend.to)
+   console.log('index of from chat to update: ',indexoffromchat);
+   console.log('index of to chat to update: ',indexoftochat);
+  
+   
+   
+   //todo ==========================================================================================================================
+   
+   
+   
+   from.userchats.splice(indexoffromchat,1)
+   to.userchats.splice(indexoftochat,1)
+   from.userchats.push({chatuid:messagetosend.chatuid,lastmessage:messagetosend.message})
+   to.userchats.push({chatuid:messagetosend.chatuid,lastmessage:messagetosend.message})
+
+   //todo ==========================================================================================================================
+
+await from.save()
+await to.save()
     // return res.send({message:'message sent successfully',sentmessage})
 
 
@@ -119,5 +212,13 @@ if(messagechecktwo !=null){
 
     })
  }
+
+
+
+
+
+ 
+
+ 
     // put other things that use io here
 }   

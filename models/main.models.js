@@ -97,3 +97,14 @@ exports.postsmodel = mongoose.model(
         { timestamps: true }
       )
     );
+
+    exports.usermessagesmodel=mongoose.model(
+      'USERMESSAGES',
+    new mongoose.Schema({
+      _id:{type:mongoose.Schema.Types.ObjectId,required:true},
+      userchats:[{
+        chatid:{type:String},
+        lastmessage:{type:String}
+      }]
+
+    }))
