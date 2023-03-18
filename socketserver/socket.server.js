@@ -124,12 +124,17 @@ if(messagecheckone !=null){
    const from= await usermessagesmodel.findById(messagetosend.from)
    const to= await usermessagesmodel.findById(messagetosend.to)
 
+   console.log('from model',from);
+   console.log('to model',to);
 //todo ==========================================================================================================================
 
    const indexoffromchat=from.userchats.map(msg=>msg.chatid).indexOf(messagetosend.from)
    const indexoftochat=to.userchats.map(msg=>msg.chatid).indexOf(messagetosend.to)
    console.log('index of from chat to update: ',indexoffromchat);
+   console.log('to usermessages: ',to.userchats);
    console.log('index of to chat to update: ',indexoftochat);
+   console.log('from usermessages: ',from.userchats);
+
   
    
    
@@ -139,15 +144,21 @@ if(messagecheckone !=null){
    
    from.userchats.splice(indexoffromchat,1)
    to.userchats.splice(indexoftochat,1)
-   from.userchats.push({chatuid:messagetosend.chatuid,lastmessage:messagetosend.message})
-   to.userchats.push({chatuid:messagetosend.chatuid,lastmessage:messagetosend.message})
+
+   console.log('last message fromsent mssage ',sentmessage);
+   console.log('checkone: current message set from\n',from.userchats,'\n','current message set to \n',to.userchats);
+
+   from.userchats.push({chatid:sentmessage.chatuid,lastmessage:sentmessage.message})
+   to.userchats.push({chatid:sentmessage.chatuid,lastmessage:sentmessage.message})
+
+   console.log('checkone: updated message set from\n',from.userchats,'\n','updated message set to \n',to.userchats);
 
    //todo ==========================================================================================================================
 
 await from.save()
 await to.save()
     // await usermessagesmodel.create( {_id:messagetosend.to,userchats:[{chatid:messagetosend.chatuid,lastmessage:messagetosend.message}]})
-    console.log(' message thread 1',sentmessage);
+    // console.log(' message thread 1',sentmessage);
 
     // return res.send({message:'message sent successfully',sentmessage})
 
@@ -188,8 +199,9 @@ if(messagechecktwo !=null){
    
    from.userchats.splice(indexoffromchat,1)
    to.userchats.splice(indexoftochat,1)
-   from.userchats.push({chatuid:messagetosend.chatuid,lastmessage:messagetosend.message})
-   to.userchats.push({chatuid:messagetosend.chatuid,lastmessage:messagetosend.message})
+   console.log('message checktow: current message set from\n',from.userchats,'\n','current message set to \n',to.userchats);
+   from.userchats.push({chatid:sentmessage.chatuid,lastmessage:sentmessage.message})
+   to.userchats.push({chatid:sentmessage.chatuid,lastmessage:sentmessage.message})
 
    //todo ==========================================================================================================================
 

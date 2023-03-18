@@ -103,7 +103,7 @@ exports.postsmodel = mongoose.model(
     new mongoose.Schema({
       _id:{type:mongoose.Schema.Types.ObjectId,required:true},
       userchats:[{
-        chatid:{type:String},
+        chatid:{type:String,required:true},
         lastmessage:{type:String}
       }]
 
