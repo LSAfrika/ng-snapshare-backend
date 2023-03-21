@@ -25,7 +25,7 @@ module.exports = (server)=> {
             onlineusers=newuserlist
             const onlineuser={soketid:socket.id,uid:socket.handshake.query.uid}
             onlineusers.push(onlineuser)
-            console.log(onlineusers);
+            // console.log(onlineusers);
             next();
           
         }
@@ -145,13 +145,13 @@ if(messagecheckone !=null){
    from.userchats.splice(indexoffromchat,1)
    to.userchats.splice(indexoftochat,1)
 
-   console.log('last message fromsent mssage ',sentmessage);
-   console.log('checkone: current message set from\n',from.userchats,'\n','current message set to \n',to.userchats);
+//    console.log('last message fromsent mssage ',sentmessage);
+//    console.log('checkone: current message set from\n',from.userchats,'\n','current message set to \n',to.userchats);
 
    from.userchats.push({chatid:sentmessage.chatuid,lastmessage:sentmessage.message})
    to.userchats.push({chatid:sentmessage.chatuid,lastmessage:sentmessage.message})
 
-   console.log('checkone: updated message set from\n',from.userchats,'\n','updated message set to \n',to.userchats);
+//    console.log('checkone: updated message set from\n',from.userchats,'\n','updated message set to \n',to.userchats);
 
    //todo ==========================================================================================================================
 
