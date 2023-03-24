@@ -85,19 +85,20 @@ console.log('loged in user',from);
         const tochatid=to+":"+from
         console.log('to user',tochatid);
        
-        const frommessages=await messagesmodel.find({chatuid:fromchatid}).select("message")   .sort({createdAt:1})
+        const frommessages=await messagesmodel.find({chatuid:fromchatid})   .sort({createdAt:1})
         // .skip(pagination * pagesize)
-        // .limit(pagesize)
+        // .limit(pagesize) .select("message")
         const tomessages=await messagesmodel.find({chatuid:tochatid})   .sort({createdAt:-1})
         // .skip(pagination * pagesize)
         // .limit(pagesize)
        
 
-        // if(frommessages.length>0 ) return res.send({message:'received from  chat id',chat:frommessages.reverse()})
+         if(frommessages.length>0 )console.log({message:'received from  chat id',chat:frommessages.reverse()})
         if(frommessages.length>0 ) return res.send({message:'received from  chat id',chat:frommessages})
 
 
            
+        if(tomessages.length>0 ) console.log({message:'received from  chat id',chat:tomessages.reverse()})
         
         if( tomessages.length>0)  return res.send({message:'received from reverse chat id',chat:tomessages.reverse()})
 
@@ -134,7 +135,7 @@ exports.retrieveuserchats=async(req,res)=>{
         // .skip(pagination * pagesize)
         // .limit(pagesize)
 
-        console.log('message thrread user',userchatsarray);
+        // console.log('message thrread user',userchatsarray);
         return res.send(userchatsarray)
 
 
@@ -167,7 +168,7 @@ exports.retrieveuserchats=async(req,res)=>{
 }
 
 
-exports.offlinesocketmessage= async(fromid,toid,messagepayload)=>{
+exports.offlinesocketmessage= async(fromid,toid,messagepayload,io)=>{
 
     const chatid_1=await messagesmodel.findOne({chatuid:fromid})
     const chatid_2=await messagesmodel.findOne({chatuid:toid})
@@ -202,6 +203,8 @@ if(receiverhaschats!==null)  {
      }
 
 // console.log('new message thread',sentmessage);
+io.emit('receive-offline-message',messagetosend)
+
 
 }
 
@@ -214,7 +217,8 @@ const messagetosend={
     chatuid:chatid_1.chatuid
 }
 
-// const sentmessage=await messagesmodel.create({...messagetosend})
+//  const sentmessage=
+ await messagesmodel.create({...messagetosend})
 //todo ==========================================================================================================================
 
 const from= await usermessagesmodel.findById(messagetosend.from)
@@ -256,7 +260,11 @@ to.userchats.push({chatid:messagetosend.chatuid,lastmessage:messagetosend.messag
 // console.log('recepient updated  array: ',to);
 await to.save()
 
+
+
 }
+
+io.emit('receive-offline-message',messagetosend)
 
 
 
@@ -320,9 +328,10 @@ await to.save()
 
 //todo ==========================================================================================================================
 
-console.log('message checktow: current message set from\n',from.userchats,'\n','current message set to \n',to.userchats);
+// console.log('message checktow: current message set from\n',from.userchats,'\n','current message set to \n',to.userchats);
 // return res.send({message:'message sent successfully',sentmessage})
 
+io.emit('receive-offline-message',messagetosend)
 
 
 }

@@ -95,7 +95,7 @@ disconnect(socket)
     console.log('chatuid 1',fromid);
     console.log('chatuid 2',toid);
 
-    offlinesocketmessage(fromid,toid,messagepayload)
+    offlinesocketmessage(fromid,toid,messagepayload,io)
 
 
         }
