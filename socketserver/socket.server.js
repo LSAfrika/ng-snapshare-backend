@@ -1,4 +1,5 @@
 const {messagesmodel,notficationsmodel,usermessagesmodel}=require('../models/main.models')
+const{offlinesocketmessage}=require('../controller/messages.controller')
 
 
 module.exports = (server)=> {
@@ -25,7 +26,7 @@ module.exports = (server)=> {
             onlineusers=newuserlist
             const onlineuser={soketid:socket.id,uid:socket.handshake.query.uid}
             onlineusers.push(onlineuser)
-            // console.log(onlineusers);
+            console.log(onlineusers);
             next();
           
         }
@@ -83,135 +84,19 @@ disconnect(socket)
  const sendmessage=(socket)=>{
      
     socket.on('message-sent',async(messagepayload)=>{
-        console.log('payload being received',messagepayload);
+        // console.log('payload being received',messagepayload);
         const isuseronline=onlineusers.map(user=> user.uid).includes(messagepayload.to)
-        console.log('online users',isuseronline);
-        console.log(messagepayload)
+        // console.log('online users',isuseronline);
+        // console.log(messagepayload)
 
  if(isuseronline ===false){
-        const fromid=messagepayload.from+":"+messagepayload.to
-        const toid=messagepayload.tp+":"+messagepayload.from
-        const messagecheckone=await messagesmodel.findOne({chatuid:fromid})
-        const messagechecktwo=await messagesmodel.findOne({chatuid:toid})
+    const fromid=messagepayload.from+":"+messagepayload.to
+    const toid=messagepayload.to+":"+messagepayload.from
+    console.log('chatuid 1',fromid);
+    console.log('chatuid 2',toid);
 
-if(messagecheckone==null&&messagechecktwo==null){
-    const messagetosend={
-        message:messagepayload.message,
-        to:messagepayload.to,
-        from:messagepayload.from,
-        chatuid:fromid
-    }
-    const sentmessage=await messagesmodel.create({...messagetosend})
+    offlinesocketmessage(fromid,toid,messagepayload)
 
-     await usermessagesmodel.create({_id:messagetosend.from,userchats:[{chatid:messagetosend.chatuid,lastmessage:messagetosend.message}]})
-     await usermessagesmodel.create( {_id:messagetosend.to,userchats:[{chatid:messagetosend.chatuid,lastmessage:messagetosend.message}]})
-    console.log('new message thread',sentmessage);
-
-}
-
-if(messagecheckone !=null){
-
-    const messagetosend={
-        message:messagepayload.message,
-        to:messagepayload.to,
-        from:messagepayload.from,
-        chatuid:messagecheckone.chatuid
-    }
-
-    const sentmessage=await messagesmodel.create({...messagetosend})
-//todo ==========================================================================================================================
-
-   const from= await usermessagesmodel.findById(messagetosend.from)
-   const to= await usermessagesmodel.findById(messagetosend.to)
-
-   console.log('from model',from);
-   console.log('to model',to);
-//todo ==========================================================================================================================
-
-   const indexoffromchat=from.userchats.map(msg=>msg.chatid).indexOf(messagetosend.from)
-   const indexoftochat=to.userchats.map(msg=>msg.chatid).indexOf(messagetosend.to)
-   console.log('index of from chat to update: ',indexoffromchat);
-   console.log('to usermessages: ',to.userchats);
-   console.log('index of to chat to update: ',indexoftochat);
-   console.log('from usermessages: ',from.userchats);
-
-  
-   
-   
-   //todo ==========================================================================================================================
-   
-   
-   
-   from.userchats.splice(indexoffromchat,1)
-   to.userchats.splice(indexoftochat,1)
-
-//    console.log('last message fromsent mssage ',sentmessage);
-//    console.log('checkone: current message set from\n',from.userchats,'\n','current message set to \n',to.userchats);
-
-   from.userchats.push({chatid:sentmessage.chatuid,lastmessage:sentmessage.message})
-   to.userchats.push({chatid:sentmessage.chatuid,lastmessage:sentmessage.message})
-
-//    console.log('checkone: updated message set from\n',from.userchats,'\n','updated message set to \n',to.userchats);
-
-   //todo ==========================================================================================================================
-
-await from.save()
-await to.save()
-    // await usermessagesmodel.create( {_id:messagetosend.to,userchats:[{chatid:messagetosend.chatuid,lastmessage:messagetosend.message}]})
-    // console.log(' message thread 1',sentmessage);
-
-    // return res.send({message:'message sent successfully',sentmessage})
-
-    
-}
-
-if(messagechecktwo !=null){
-
-    const messagetosend={
-        message:messagepayload.message,
-        to:messagepayload.to,
-        from:messagepayload.from,
-        chatuid:messagechecktwo.chatuid
-    }
-
-    const sentmessage=await messagesmodel.create({...messagetosend})
-    console.log(' message thread 2',sentmessage);
-
-
-    
-//todo ==========================================================================================================================
-
-   const from= await usermessagesmodel.findById(messagetosend.from)
-   const to= await usermessagesmodel.findById(messagetosend.to)
-
-//todo ==========================================================================================================================
-
-   const indexoffromchat=from.userchats.map(msg=>msg.chatid).indexOf(messagetosend.from)
-   const indexoftochat=to.userchats.map(msg=>msg.chatid).indexOf(messagetosend.to)
-   console.log('index of from chat to update: ',indexoffromchat);
-   console.log('index of to chat to update: ',indexoftochat);
-  
-   
-   
-   //todo ==========================================================================================================================
-   
-   
-   
-   from.userchats.splice(indexoffromchat,1)
-   to.userchats.splice(indexoftochat,1)
-   console.log('message checktow: current message set from\n',from.userchats,'\n','current message set to \n',to.userchats);
-   from.userchats.push({chatid:sentmessage.chatuid,lastmessage:sentmessage.message})
-   to.userchats.push({chatid:sentmessage.chatuid,lastmessage:sentmessage.message})
-
-   //todo ==========================================================================================================================
-
-await from.save()
-await to.save()
-    // return res.send({message:'message sent successfully',sentmessage})
-
-
-    
-}
 
         }
 

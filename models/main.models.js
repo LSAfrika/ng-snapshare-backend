@@ -105,7 +105,8 @@ exports.postsmodel = mongoose.model(
       userchats:[{
         chatid:{type:String,required:true},
         chatingwith:{type:mongoose.Schema.Types.ObjectId,required:true,ref:"USER"},
-        lastmessage:{type:String}
+        lastmessage:{type:String,required:true},
+        timestamp:{type:Number,required:true,default:Date.now()}
       }]
 
     }))

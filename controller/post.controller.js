@@ -1,4 +1,5 @@
 const {postsmodel} =require('../models/main.models')
+
 const fs = require('fs');
 const { response } = require('express');
 
@@ -112,6 +113,8 @@ exports.getuserposts=async(req,res)=>{
     }
 
 }
+
+
 
 
 
