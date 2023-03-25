@@ -77,13 +77,13 @@ exports.retrieveusermessages=async(req,res)=>{
         const pagesize = 1;
         let pagination = req.query.pagination;
         const from =req.body.userid
-console.log('loged in user',from);
+// console.log('loged in user',from);
         const to=req.params.currentchat
         
         const fromchatid=from+":"+to
-        console.log('from user',fromchatid);
+        // console.log('from user',fromchatid);
         const tochatid=to+":"+from
-        console.log('to user',tochatid);
+        // console.log('to user',tochatid);
        
         const frommessages=await messagesmodel.find({chatuid:fromchatid})   .sort({createdAt:1})
         // .skip(pagination * pagesize)
@@ -168,8 +168,9 @@ exports.retrieveuserchats=async(req,res)=>{
 }
 
 
-exports.offlinesocketmessage= async(fromid,toid,messagepayload,io)=>{
+exports.offlinesocketmessage= async(fromid,toid,messagepayload,io,onlineusers)=>{
 
+    console.log('current online user sending message',onlineusers);
     const chatid_1=await messagesmodel.findOne({chatuid:fromid})
     const chatid_2=await messagesmodel.findOne({chatuid:toid})
 
@@ -203,7 +204,7 @@ if(receiverhaschats!==null)  {
      }
 
 // console.log('new message thread',sentmessage);
-io.emit('receive-offline-message',messagetosend)
+io.to(onlineusers).emit('receive-offline-message',messagetosend)
 
 
 }
@@ -264,7 +265,7 @@ await to.save()
 
 }
 
-io.emit('receive-offline-message',messagetosend)
+io.to(onlineusers).emit('receive-offline-message',messagetosend)
 
 
 
@@ -331,7 +332,7 @@ await to.save()
 // console.log('message checktow: current message set from\n',from.userchats,'\n','current message set to \n',to.userchats);
 // return res.send({message:'message sent successfully',sentmessage})
 
-io.emit('receive-offline-message',messagetosend)
+io.to(onlineusers).emit('receive-offline-message',messagetosend)
 
 
 }

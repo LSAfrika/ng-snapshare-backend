@@ -92,10 +92,10 @@ disconnect(socket)
  if(isuseronline ===false){
     const fromid=messagepayload.from+":"+messagepayload.to
     const toid=messagepayload.to+":"+messagepayload.from
-    console.log('chatuid 1',fromid);
-    console.log('chatuid 2',toid);
+    // console.log('chatuid 1',fromid);
+    // console.log('chatuid 2',toid);
 
-    offlinesocketmessage(fromid,toid,messagepayload,io)
+    offlinesocketmessage(fromid,toid,messagepayload,io,socket.id)
 
 
         }
@@ -103,8 +103,213 @@ disconnect(socket)
         if(isuseronline===true){
             const recepient= onlineusers.filter(onlineuser=>onlineuser.uid===messagepayload.to)[0]
             console.log('chat partner is active',recepient);
+            console.log('chat partner is active sid',recepient.socketid);
+            console.log('chat partner is active uid',recepient.uid);
+            console.log('chat partner message',messagepayload);
+// to(recepient.socketid).
+            const senderchatid=messagepayload.chatuid
+            const recepientchatid=messagepayload.to+":"+messagepayload.from
 
-            io.to(recepient.socketid).emit('receive-message',messagepayload)
+            const sender= await messagesmodel.findOne({chatuid:senderchatid})
+            const receiver= await messagesmodel.findOne({chatuid:recepientchatid})
+
+
+            if(sender==null && receiver==null){
+
+                await messagesmodel.create(messagepayload)
+            
+
+                        const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from})
+                        const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to})
+console.log('sender receiver chatlist',senderchatlist,receiverchatlist);
+const now=Date.now()
+
+                        if(senderchatlist !==null){
+
+                            senderchatlist.userchats.push( {chatid:messagepayload.chatuid,
+                                lastmessage:messagepayload.message,
+                                chatingwith:messagepayload.to,
+                                timestamp:now})
+
+                               const updatechatlist= await senderchatlist.save()
+                console.log('senderchat list',updatechatlist);
+
+
+                        }
+
+                        if(receiverchatlist !==null){
+
+                                receiverchatlist.userchats.push(   
+                                    {chatid:messagepayload.chatuid,
+                                    lastmessage:messagepayload.message,
+                                    chatingwith:messagepayload.from,
+                                    timestamp:now
+                                })
+
+
+                                const updatechatlist= await receiverchatlist.save()
+                                console.log('receiver chat list',updatechatlist);
+
+         return   io.to(recepient.soketid).emit('online-message',messagepayload)
+            
+                        }
+          await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
+            chatid:messagepayload.chatuid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
+        
+                            await usermessagesmodel.create(
+                                {   _id:messagepayload.to,
+                                    userchats:[
+                                        {chatid:messagepayload.chatuid,
+                                        lastmessage:messagepayload.message,
+                                        chatingwith:messagepayload.from,
+                                        timestamp:now
+                                    }
+                                    ]
+        
+                                })
+
+            io.to(recepient.soketid).emit('online-message',messagepayload)
+            
+
+            }
+
+            if(sender !=null){
+                await messagesmodel.create(messagepayload)
+                const now=Date.now()
+            
+
+                const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from})
+                const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to})
+
+                console.log('sender not null senderchat list',senderchatlist._id);
+                console.log('sender not null receiverchat list',receiverchatlist._id);
+                if(senderchatlist !==null){
+
+
+                    const index=senderchatlist.userchats.map(msg=>msg.chatid).indexOf(messagepayload.chatuid)
+
+                    console.log('index sender: ',index);
+
+                    senderchatlist.userchats.splice(index,1)
+
+                    senderchatlist.userchats.push( {chatid:messagepayload.chatuid,
+                        lastmessage:messagepayload.message,
+                        chatingwith:messagepayload.to,
+                        timestamp:now})
+
+                        await senderchatlist.save()
+        
+
+
+                }
+
+                if(receiverchatlist !==null){
+
+                    const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(messagepayload.chatuid)
+
+                    console.log('index sender: ',index);
+
+                    receiverchatlist.userchats.splice(index,1)
+                        receiverchatlist.userchats.push(   
+                            {chatid:messagepayload.chatuid,
+                            lastmessage:messagepayload.message,
+                            chatingwith:messagepayload.from,
+                            timestamp:now
+                        })
+
+await receiverchatlist.save()
+
+ return   io.to(recepient.soketid).emit('online-message',messagepayload)
+    
+                }
+
+//   await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
+//     chatid:messagepayload.chatuid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:Date.now()}]})
+
+                    await usermessagesmodel.create(
+                        {   _id:messagepayload.to,
+                            userchats:[
+                                {chatid:messagepayload.chatuid,
+                                lastmessage:messagepayload.message,
+                                chatingwith:messagepayload.from,
+                                timestamp:now
+                            }
+                            ]
+
+                        })
+
+    io.to(recepient.soketid).emit('online-message',messagepayload)
+            }
+
+            if(receiver !=null){
+                await messagesmodel.create(messagepayload)
+const now=Date.now()
+            
+
+                const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from})
+                const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to})
+
+                console.log('receiver not null senderchat list',senderchatlist._id);
+                console.log('receiver not null receiverchat list',receiverchatlist._id);
+          
+
+                if(senderchatlist !==null){
+
+                    const index=senderchatlist.userchats.map(msg=>msg.chatid).indexOf(receiver.chatuid)
+
+                    console.log('index of senderchatlist : ',index);
+
+                    senderchatlist.userchats.splice(index,1)
+
+                    senderchatlist.userchats.push( {chatid:messagepayload.chatuid,
+                        lastmessage:messagepayload.message,
+                        chatingwith:messagepayload.to,
+                        timestamp:now})
+
+                        await senderchatlist.save()
+        
+
+
+                }
+
+                if(receiverchatlist !==null){
+
+                    const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(receiver.chatuid)
+
+                    console.log('index of receiverchatlist : ',index);
+
+                    receiverchatlist.userchats.splice(index,1)
+
+                        receiverchatlist.userchats.push(   
+                            {chatid:messagepayload.chatuid,
+                            lastmessage:messagepayload.message,
+                            chatingwith:messagepayload.from,
+                            timestamp:now
+                        })
+
+await receiverchatlist.save()
+
+ return   io.to(recepient.soketid).emit('online-message',messagepayload)
+    
+                }
+
+  await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
+    chatid:messagepayload.chatuid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
+
+                    // await usermessagesmodel.create(
+                    //     {   _id:messagepayload.to,
+                    //         userchats:[
+                    //             {chatid:messagepayload.chatuid,
+                    //             lastmessage:messagepayload.message,
+                    //             chatingwith:messagepayload.from,
+                    //             timestamp:Date.now()
+                    //         }
+                    //         ]
+
+                    //     })
+
+    io.to(recepient.soketid).emit('online-message',messagepayload)
+            }
         }
 
     })
