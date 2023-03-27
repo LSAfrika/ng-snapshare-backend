@@ -102,9 +102,9 @@ disconnect(socket)
 
         if(isuseronline===true){
             const recepient= onlineusers.filter(onlineuser=>onlineuser.uid===messagepayload.to)[0]
-            console.log('chat partner is active',recepient);
-            console.log('chat partner is active sid',recepient.socketid);
-            console.log('chat partner is active uid',recepient.uid);
+            // console.log('chat partner is active',recepient);
+            // console.log('chat partner is active sid',recepient.socketid);
+            // console.log('chat partner is active uid',recepient.uid);
             console.log('chat partner avtive message',messagepayload);
 // to(recepient.socketid).
             const senderchatid=messagepayload.chatid
@@ -190,13 +190,13 @@ disconnect(socket)
                 if(senderchatlist !==null){
 
 
-                    const index=senderchatlist.userchats.map(msg=>msg.chatid).indexOf(messagepayload.chatid)
+                    const index=senderchatlist.userchats.map(msg=>msg.chatid).indexOf(sender.chatid)
 
                     console.log('index sender: ',index);
 
                     senderchatlist.userchats.splice(index,1)
 
-                    senderchatlist.userchats.push( {chatid:messagepayload.chatid,
+                    senderchatlist.userchats.push( {chatid:sender.chatid,
                         lastmessage:messagepayload.message,
                         chatingwith:messagepayload.to,
                         timestamp:now})
@@ -209,13 +209,13 @@ disconnect(socket)
 
                 if(receiverchatlist !==null){
 
-                    const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(messagepayload.chatid)
+                    const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(sender.chatid)
 
-                    console.log('index sender: ',index);
+                    console.log('index  receiver: ',index);
 
                     receiverchatlist.userchats.splice(index,1)
                         receiverchatlist.userchats.push(   
-                            {chatid:messagepayload.chatid,
+                            {chatid:sender.chatid,
                             lastmessage:messagepayload.message,
                             chatingwith:messagepayload.from,
                             timestamp:now
@@ -234,7 +234,7 @@ response({sent:true})
                     await usermessagesmodel.create(
                         {   _id:messagepayload.to,
                             userchats:[
-                                {chatid:messagepayload.chatid,
+                                {chatid:sender.chatid,
                                 lastmessage:messagepayload.message,
                                 chatingwith:messagepayload.from,
                                 timestamp:now
@@ -267,7 +267,7 @@ response({sent:true})
 
                     senderchatlist.userchats.splice(index,1)
 
-                    senderchatlist.userchats.push( {chatid:messagepayload.chatid,
+                    senderchatlist.userchats.push( {chatid:receiver.chatid,
                         lastmessage:messagepayload.message,
                         chatingwith:messagepayload.to,
                         timestamp:now})
@@ -287,7 +287,7 @@ response({sent:true})
                     receiverchatlist.userchats.splice(index,1)
 
                         receiverchatlist.userchats.push(   
-                            {chatid:messagepayload.chatid,
+                            {chatid:receiver.chatid,
                             lastmessage:messagepayload.message,
                             chatingwith:messagepayload.from,
                             timestamp:now
@@ -301,7 +301,7 @@ response({sent:true})
                 }
 
   await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
-    chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
+    chatid:receiver.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
 
                     // await usermessagesmodel.create(
                     //     {   _id:messagepayload.to,

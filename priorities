@@ -6,4 +6,6 @@ re work messages model to use one chat id
 
 rework online message chat uid save both combinations -DONE
 
+wrong user id saved look into it
+
 add notification socket 

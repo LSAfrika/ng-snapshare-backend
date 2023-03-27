@@ -227,7 +227,10 @@ let to= await usermessagesmodel.findById(messagetosend.to)
 
 
 //todo ==========================================================================================================================
+if(from==null){
+from=  await usermessagesmodel.create( {_id:messagetosend.from,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()}]})
 
+}
 if(to==null){
 to=  await usermessagesmodel.create( {_id:messagetosend.to,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()}]})
 
@@ -299,6 +302,12 @@ from=  await usermessagesmodel.create( {_id:messagetosend.from,
 userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()}]})
 
 }
+
+if(to==null){
+    to=  await usermessagesmodel.create( {_id:messagetosend.to,
+    userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()}]})
+    
+    }
 //todo ==========================================================================================================================
 
 if(from!==null) { const indexoffromchat=from.userchats.map(msg=>msg.chatid).indexOf(messagetosend.chatid);
