@@ -83,7 +83,7 @@ disconnect(socket)
 
  const sendmessage=(socket)=>{
      
-    socket.on('message-sent',async(messagepayload)=>{
+    socket.on('message-sent',async(messagepayload,response)=>{
         // console.log('payload being received',messagepayload);
         const isuseronline=onlineusers.map(user=> user.uid).includes(messagepayload.to)
         // console.log('online users',isuseronline);
@@ -92,8 +92,8 @@ disconnect(socket)
  if(isuseronline ===false){
     const fromid=messagepayload.from+":"+messagepayload.to
     const toid=messagepayload.to+":"+messagepayload.from
-    // console.log('chatuid 1',fromid);
-    // console.log('chatuid 2',toid);
+    // console.log('chatid 1',fromid);
+    // console.log('chatid 2',toid);
 
     offlinesocketmessage(fromid,toid,messagepayload,io,socket.id)
 
@@ -105,34 +105,36 @@ disconnect(socket)
             console.log('chat partner is active',recepient);
             console.log('chat partner is active sid',recepient.socketid);
             console.log('chat partner is active uid',recepient.uid);
-            console.log('chat partner message',messagepayload);
+            console.log('chat partner avtive message',messagepayload);
 // to(recepient.socketid).
-            const senderchatid=messagepayload.chatuid
+            const senderchatid=messagepayload.chatid
             const recepientchatid=messagepayload.to+":"+messagepayload.from
 
-            const sender= await messagesmodel.findOne({chatuid:senderchatid})
-            const receiver= await messagesmodel.findOne({chatuid:recepientchatid})
+            const sender= await messagesmodel.findOne({chatid:senderchatid})
+            const receiver= await messagesmodel.findOne({chatid:recepientchatid})
 
 
             if(sender==null && receiver==null){
 
+                console.log('initial message sent: ',messagepayload);
                 await messagesmodel.create(messagepayload)
             
 
                         const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from})
                         const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to})
-console.log('sender receiver chatlist',senderchatlist,receiverchatlist);
-const now=Date.now()
+                        console.log('sender receiver chatlist',senderchatlist,receiverchatlist);
+                        const now=Date.now()
 
                         if(senderchatlist !==null){
 
-                            senderchatlist.userchats.push( {chatid:messagepayload.chatuid,
+                            senderchatlist.userchats.push( {chatid:messagepayload.chatid,
                                 lastmessage:messagepayload.message,
                                 chatingwith:messagepayload.to,
                                 timestamp:now})
 
                                const updatechatlist= await senderchatlist.save()
-                console.log('senderchat list',updatechatlist);
+                            // console.log('senderchat list',updatechatlist);
+                            // response({sent:true})
 
 
                         }
@@ -140,7 +142,7 @@ const now=Date.now()
                         if(receiverchatlist !==null){
 
                                 receiverchatlist.userchats.push(   
-                                    {chatid:messagepayload.chatuid,
+                                    {chatid:messagepayload.chatid,
                                     lastmessage:messagepayload.message,
                                     chatingwith:messagepayload.from,
                                     timestamp:now
@@ -148,18 +150,19 @@ const now=Date.now()
 
 
                                 const updatechatlist= await receiverchatlist.save()
-                                console.log('receiver chat list',updatechatlist);
+                                // console.log('receiver chat list',updatechatlist);
 
-         return   io.to(recepient.soketid).emit('online-message',messagepayload)
+                                response({sent:true})
+         return   socket.to(recepient.soketid).emit('online-message',messagepayload)
             
                         }
           await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
-            chatid:messagepayload.chatuid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
+            chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
         
                             await usermessagesmodel.create(
                                 {   _id:messagepayload.to,
                                     userchats:[
-                                        {chatid:messagepayload.chatuid,
+                                        {chatid:messagepayload.chatid,
                                         lastmessage:messagepayload.message,
                                         chatingwith:messagepayload.from,
                                         timestamp:now
@@ -167,14 +170,15 @@ const now=Date.now()
                                     ]
         
                                 })
+                                response({sent:true})
 
-            io.to(recepient.soketid).emit('online-message',messagepayload)
+            socket.to(recepient.soketid).emit('online-message',messagepayload)
             
 
             }
 
             if(sender !=null){
-                await messagesmodel.create(messagepayload)
+                await messagesmodel.create({...messagepayload,chatid:sender.chatid})
                 const now=Date.now()
             
 
@@ -186,13 +190,13 @@ const now=Date.now()
                 if(senderchatlist !==null){
 
 
-                    const index=senderchatlist.userchats.map(msg=>msg.chatid).indexOf(messagepayload.chatuid)
+                    const index=senderchatlist.userchats.map(msg=>msg.chatid).indexOf(messagepayload.chatid)
 
                     console.log('index sender: ',index);
 
                     senderchatlist.userchats.splice(index,1)
 
-                    senderchatlist.userchats.push( {chatid:messagepayload.chatuid,
+                    senderchatlist.userchats.push( {chatid:messagepayload.chatid,
                         lastmessage:messagepayload.message,
                         chatingwith:messagepayload.to,
                         timestamp:now})
@@ -205,31 +209,32 @@ const now=Date.now()
 
                 if(receiverchatlist !==null){
 
-                    const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(messagepayload.chatuid)
+                    const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(messagepayload.chatid)
 
                     console.log('index sender: ',index);
 
                     receiverchatlist.userchats.splice(index,1)
                         receiverchatlist.userchats.push(   
-                            {chatid:messagepayload.chatuid,
+                            {chatid:messagepayload.chatid,
                             lastmessage:messagepayload.message,
                             chatingwith:messagepayload.from,
                             timestamp:now
                         })
 
 await receiverchatlist.save()
+response({sent:true})
 
- return   io.to(recepient.soketid).emit('online-message',messagepayload)
+ return   socket.to(recepient.soketid).emit('online-message',messagepayload)
     
                 }
 
 //   await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
-//     chatid:messagepayload.chatuid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:Date.now()}]})
+//     chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:Date.now()}]})
 
                     await usermessagesmodel.create(
                         {   _id:messagepayload.to,
                             userchats:[
-                                {chatid:messagepayload.chatuid,
+                                {chatid:messagepayload.chatid,
                                 lastmessage:messagepayload.message,
                                 chatingwith:messagepayload.from,
                                 timestamp:now
@@ -237,13 +242,14 @@ await receiverchatlist.save()
                             ]
 
                         })
+                        response({sent:true})
 
-    io.to(recepient.soketid).emit('online-message',messagepayload)
+    socket.to(recepient.soketid).emit('online-message',messagepayload)
             }
 
             if(receiver !=null){
-                await messagesmodel.create(messagepayload)
-const now=Date.now()
+                await messagesmodel.create({...messagepayload,chatid:receiver.chatid})
+                const now=Date.now()
             
 
                 const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from})
@@ -255,13 +261,13 @@ const now=Date.now()
 
                 if(senderchatlist !==null){
 
-                    const index=senderchatlist.userchats.map(msg=>msg.chatid).indexOf(receiver.chatuid)
+                    const index=senderchatlist.userchats.map(msg=>msg.chatid).indexOf(receiver.chatid)
 
                     console.log('index of senderchatlist : ',index);
 
                     senderchatlist.userchats.splice(index,1)
 
-                    senderchatlist.userchats.push( {chatid:messagepayload.chatuid,
+                    senderchatlist.userchats.push( {chatid:messagepayload.chatid,
                         lastmessage:messagepayload.message,
                         chatingwith:messagepayload.to,
                         timestamp:now})
@@ -274,32 +280,33 @@ const now=Date.now()
 
                 if(receiverchatlist !==null){
 
-                    const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(receiver.chatuid)
+                    const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(receiver.chatid)
 
                     console.log('index of receiverchatlist : ',index);
 
                     receiverchatlist.userchats.splice(index,1)
 
                         receiverchatlist.userchats.push(   
-                            {chatid:messagepayload.chatuid,
+                            {chatid:messagepayload.chatid,
                             lastmessage:messagepayload.message,
                             chatingwith:messagepayload.from,
                             timestamp:now
                         })
 
 await receiverchatlist.save()
+response({sent:true})
 
- return   io.to(recepient.soketid).emit('online-message',messagepayload)
+ return   socket.to(recepient.soketid).emit('online-message',messagepayload)
     
                 }
 
   await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
-    chatid:messagepayload.chatuid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
+    chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
 
                     // await usermessagesmodel.create(
                     //     {   _id:messagepayload.to,
                     //         userchats:[
-                    //             {chatid:messagepayload.chatuid,
+                    //             {chatid:messagepayload.chatid,
                     //             lastmessage:messagepayload.message,
                     //             chatingwith:messagepayload.from,
                     //             timestamp:Date.now()
@@ -307,8 +314,9 @@ await receiverchatlist.save()
                     //         ]
 
                     //     })
+                    response({sent:true})
 
-    io.to(recepient.soketid).emit('online-message',messagepayload)
+    socket.to(recepient.soketid).emit('online-message',messagepayload)
             }
         }
 

@@ -4,4 +4,6 @@
 re work messages model to use one chat id
 
 
-rework online message chat uid save both combinations 
+rework online message chat uid save both combinations -DONE
+
+add notification socket 

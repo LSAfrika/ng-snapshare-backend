@@ -86,7 +86,7 @@ exports.postsmodel = mongoose.model(
       new mongoose.Schema(
         {
           message: { type: String, required: true},
-         chatuid:{type:String,required:true},
+         chatid:{type:String,required:true},
         //  from_to:{type:String,required:true},
           from:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
           to:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
