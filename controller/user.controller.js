@@ -298,12 +298,17 @@ exports.getfollowers=async(req,res)=>{
         let splicedfollowers=[]
         // let returnfollowers=[]
         const {pagination}=req.query
-        // console.log('query size',pagination);
+        // console.log('query size',pagination);\\\\\
         const returnsize=10
         const user= await usermodel.findById(userid)
-        .select("followers ")
+         .select("followers ")
+        .populate
+        (
+        {path:'followers',select:'_id imgurl username',model:'USER'}
+            
+        )
         if(user===null)throw new Error('no user ')
-        // console.log(user);
+         console.log('user followers',user);
         if(user.followers.length===0) return res.send({message:'user has no followers',splicedfollowers:user.followers})
         const splicer=pagination*returnsize
         // console.log('splicer',splicer);
@@ -333,6 +338,11 @@ exports.getfollowing=async(req,res)=>{
         const returnsize=10
         const user= await usermodel.findById(userid)
         .select("following ")
+        .populate
+        (
+        {path:'following',select:'_id imgurl username',model:'USER'}
+            
+        )
         if(user===null)throw new Error('no user ')
         //   console.log(user.following);
         if(user.following.length===0) return res.send({message:'user is not following any one',splicedfollowing:user.following})
