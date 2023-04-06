@@ -1,7 +1,7 @@
-const {postsmodel} =require('../models/main.models')
+const {postsmodel,commentsmodel,notficationsmodel,likesmodel} =require('../models/main.models')
 
 const fs = require('fs');
-const { response } = require('express');
+
 
 
 exports.getallposts=async(req,res)=>{
@@ -250,8 +250,18 @@ exports.deletephoto=async(req,res)=>{
     if(postonwerid !== userid)  throw new Error('unauthorized deletion atempt')
     
     
-            fs.rmSync(`./public/uploads/${posttodelete._id}`, { recursive: true });
-            
+            fs.rmdirSync(`./public/uploads/${posttodelete._id}`, { recursive: true }, err => {
+                if (err) {
+                  throw err
+                }
+              
+                console.log(`${dir} is deleted!`)
+              });
+
+        
+            await notficationsmodel.deleteMany({post:posttodelete._id})
+            // await likesmodel.deleteMany({post:posttodelete._id})
+            await commentsmodel.deleteMany({post:posttodelete._id})
             await posttodelete.delete()
 
             res.send({message:'post deleted'})
