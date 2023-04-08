@@ -43,6 +43,8 @@ exports.postsmodel = mongoose.model(
         imgurl: { type: String,required:true,default:'http://localhost:4555/defaultpic/profile.png'},
         hash:{ type: String, required: true },
         email: { type: String, required: true },
+        online:{type:Boolean,required:true,default:false},
+        lastseen:{type:Number,required:true,default:Date.now()}
       },
       { timestamps: true }
     )

@@ -1,4 +1,4 @@
-const {messagesmodel,notficationsmodel,usermessagesmodel}=require('../models/main.models')
+const {messagesmodel,notficationsmodel,usermessagesmodel, usermodel}=require('../models/main.models')
 const{offlinesocketmessage}=require('../controller/messages.controller')
 
 
@@ -11,7 +11,7 @@ module.exports = (server)=> {
     const io = require("socket.io")(server,{cors:{origin:['http://localhost:4200']}});
 
 
-    function newusermiddlware(socket,next){
+    async function newusermiddlware(socket,next){
 
         // console.log('handshake: \n',socket.handshake.query);
         if (socket.handshake.query && socket.handshake.query.uid){
@@ -21,6 +21,7 @@ module.exports = (server)=> {
                 return next(new Error('Authentication error'));
             
             }
+            await usermodel.findByIdAndUpdate(socket.handshake.query.uid,{online:true})
 
             const newuserlist=    onlineusers.filter(user=>user.uid!==socket.handshake.query.uid)
             onlineusers=newuserlist
@@ -58,15 +59,18 @@ disconnect(socket)
     });
 
     const disconnect=(socket)=>{
-        socket.on('disconnect', () => {
+        socket.on('disconnect', async() => {
 
             console.log('current array value list');
             console.log(socket.id)
         const disconnectinguserindex=    onlineusers.map(user=>user.soketid).indexOf(socket.id)
+        const disconectuser=onlineusers[disconnectinguserindex]
+        await usermodel.findByIdAndUpdate(disconectuser.uid,{online:false,lastseen:Date.now()})
+        console.log('user who is diconrcting',disconectuser);
         onlineusers.splice(disconnectinguserindex,1)
-        console.log('index of offline user',disconnectinguserindex);
+        // console.log('index of offline user',disconnectinguserindex);
         // onlineusers=newuserlist
-             console.log('user disconnected',onlineusers);
+            //  console.log('user disconnected',onlineusers);
           }); 
     }
 

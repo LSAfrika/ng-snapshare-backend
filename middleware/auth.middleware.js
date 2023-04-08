@@ -96,6 +96,7 @@ exports.signin=async(req,res,next)=>{
     
             // res.send({token})
             req.body.token=token
+            req.body.username=payload.username
             req.body.refreshtoken=refreshtoken
             req.body.email=email
             req.body.userid=payload._id
