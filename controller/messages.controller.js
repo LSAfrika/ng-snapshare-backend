@@ -1,4 +1,4 @@
-const{messagesmodel,usermodel,usermessagesmodel}=require('../models/main.models')
+const{messagesmodel,usermessagesmodel}=require('../models/main.models')
 
 
 exports.directmessage=async(req,res)=>{
@@ -129,13 +129,8 @@ exports.retrieveuserchats=async(req,res)=>{
         // const tochatid=to+":"+from
        
         const userchatsarray=await usermessagesmodel.findById({_id:userid}).populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
-        select:"_id username imgurl"}]})
-        // const userchatsarray=await usermessagesmodel.findById({_id:userid}) await usermessagesmodel.find({})
-        // .select("message")   .sort({createdAt:1})
-        // .skip(pagination * pagesize)
-        // .limit(pagesize)
-
-        // console.log('message thrread user',userchatsarray);
+        select:"_id username imgurl lastseen online"}]})
+    console.log('msg controller: userchats list',userchatsarray);
         return res.send(userchatsarray)
 
 
@@ -167,6 +162,39 @@ exports.retrieveuserchats=async(req,res)=>{
     }
 }
 
+
+exports.deletechatthread=async(req,res)=>{
+    try {
+        const {userid}=req.body
+        const threadid= req.params.userchat
+
+        const ids=threadid.split(':')
+        if(ids[0] ==userid ||ids[1]==userid){
+
+         //   const userthread = await messagesmodel.find()
+            const userthread = await messagesmodel.find({chatid:threadid})
+            const userchatlist= await usermessagesmodel.findById(userid)
+    
+            const indexofchattoremove= userchatlist.userchats.map(elem=> elem.chatid).indexOf(threadid)
+            console.log('index for deletion',indexofchattoremove);
+            userchatlist.userchats.splice(indexofchattoremove,1)
+          userthread.forEach(async(thread)=>{
+            thread.deletechat.push(userid)
+            await thread.save()
+          })
+
+         
+
+       return res.send({userchatlist,threadid,userid,  userthread })
+        }
+        throw new Error('chat owner missmatch')
+
+
+    } catch (error) {
+        console.log('deletechat error',error.message);
+        res.send({errormessge:error.message})
+    }
+}
 
 exports.offlinesocketmessage= async(fromid,toid,messagepayload,io,onlineusers)=>{
 

@@ -42,6 +42,8 @@ exports.authprovidersignin=async(req,res)=>{
     }
 
 }
+
+
 exports.updateuser=async(req,res)=>{
 
     try {
@@ -165,7 +167,7 @@ exports.getuser=async(req,res)=>{
     try {
         const userid=req.params.id
    
-        const user= await usermodel.findById(userid) .select("_id username imgurl createdAt email followerscounter followingcounter ")
+        const user= await usermodel.findById(userid) .select("_id username imgurl createdAt email followerscounter followingcounter lastseen online ")
 
         if(user===null)throw new Error('no user ')
 
@@ -360,3 +362,4 @@ exports.getfollowing=async(req,res)=>{
         res.send(error)
     }
 }
+

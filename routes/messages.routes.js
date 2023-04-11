@@ -1,7 +1,7 @@
 const express=require('express')
 const router= express.Router()
 const{authentication}=require('../middleware/auth.middleware')
-const{directmessage,retrieveusermessages,retrieveuserchats}=require('../controller/messages.controller')
+const{directmessage,retrieveusermessages,retrieveuserchats, deletechatthread}=require('../controller/messages.controller')
 
 
 router.use(authentication)
@@ -12,7 +12,7 @@ router.get('/getuserchats/',retrieveuserchats)
 
 
 router.post('/',directmessage)
-router.delete('/deletemessage/:userchat')
+router.delete('/deletemessage/:userchat',deletechatthread)
 
 
 //* post routes
