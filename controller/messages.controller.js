@@ -179,6 +179,12 @@ exports.deletechatthread=async(req,res)=>{
             console.log('index for deletion',indexofchattoremove);
             userchatlist.userchats.splice(indexofchattoremove,1)
           userthread.forEach(async(thread)=>{
+            if(thread.deletechat.includes(userid)){
+                return console.log('user has already delete chat')
+
+                 
+                
+                }
             thread.deletechat.push(userid)
             await thread.save()
           })
