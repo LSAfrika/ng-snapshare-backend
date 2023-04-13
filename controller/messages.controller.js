@@ -215,7 +215,7 @@ exports.retrieveuserchats=async(req,res)=>{
 exports.deletechatthread=async(req,res)=>{
     try {
         const {userid}=req.body
-        const threadid= req.params.userchat
+        const threadid= req.params.userthreadid
 
         const ids=threadid.split(':')
         if(ids[0] ==userid ||ids[1]==userid){
@@ -223,15 +223,24 @@ exports.deletechatthread=async(req,res)=>{
          //   const userthread = await messagesmodel.find()
             const userthread = await messagesmodel.find({chatid:threadid})
             const userchatlist= await usermessagesmodel.findById(userid)
+
+            
+        // return    console.log('chat id data',userthread);
+
+       const indexofchatid= userchatlist.userchats.map(chat=> chat.chatid).indexOf(threadid)
+       userchatlist.userchats.splice(indexofchatid,1)
+          await userchatlist.save()
+       //return res.send({userchats:userchatlist.userchats,indexofchatid})
     
             const indexofchattoremove= userchatlist.userchats.map(elem=> elem.chatid).indexOf(threadid)
-            console.log('index for deletion',indexofchattoremove);
+           // console.log('index for deletion',indexofchattoremove);
             userchatlist.userchats.splice(indexofchattoremove,1)
           userthread.forEach(async(thread)=>{
             if(thread.deletechat.includes(userid)){
-                return console.log('user has already delete chat')
-
-                 
+             return    console.log('user has already delete chat')
+                // thread.deletechat=[]
+                // await thread.save()
+                //  return
                 
                 }
             thread.deletechat.push(userid)
@@ -240,7 +249,7 @@ exports.deletechatthread=async(req,res)=>{
 
          
 
-       return res.send({userchatlist,threadid,userid,  userthread })
+       return res.send({message:'successfully deleted user thread'})
         }
         throw new Error('chat owner missmatch')
 

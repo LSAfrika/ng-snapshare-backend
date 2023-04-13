@@ -12,7 +12,7 @@ router.get('/getuserchats/',retrieveuserchats)
 
 
 router.post('/',directmessage)
-router.delete('/deletemessage/:userchat',deletechatthread)
+router.delete('/deletemessage/:userthreadid',deletechatthread)
 
 
 //* post routes
