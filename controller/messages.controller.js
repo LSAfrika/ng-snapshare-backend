@@ -77,6 +77,7 @@ exports.retrieveusermessages=async(req,res)=>{
         const pagesize = 1;
         let pagination = req.query.pagination;
         const from =req.body.userid
+        
 // console.log('loged in user',from);
         const to=req.params.currentchat
         
@@ -94,13 +95,61 @@ exports.retrieveusermessages=async(req,res)=>{
        
 
          if(frommessages.length>0 )console.log({message:'received from  chat id',chat:frommessages.reverse()})
-        if(frommessages.length>0 ) return res.send({message:'received from  chat id',chat:frommessages})
+        if(frommessages.length>0 ) {
+            
+            let filteredchat=[]
+            frommessages.forEach(msg=>{
+
+                if(msg.deletechat.includes(from)){
+                  //  console.log(' array has user')
+
+
+             console.log('index of filtered chat: ', frommessages.indexOf(msg)  );      
+                //  frommessages[msg]=[]
+
+                }else{
+                    filteredchat.push(msg)
+                    return   console.log(' array missing user')
+                }
+                
+
+            }
+                )
+
+
+
+
+            return res.send({message:'received from  chat id',chat:filteredchat})
+        
+        }
 
 
            
-        if(tomessages.length>0 ) console.log({message:'received from  chat id',chat:tomessages.reverse()})
+        if(tomessages.length>0 ) console.log({message:'received to  chat id',chat:tomessages.reverse()})
         
-        if( tomessages.length>0)  return res.send({message:'received from reverse chat id',chat:tomessages.reverse()})
+        if( tomessages.length>0)  {
+            
+            let filteredchat=[]
+            tomessages.forEach(msg=>{
+
+                if(msg.deletechat.includes(from)){
+                  //  console.log(' array has user')
+
+
+             console.log('index of filtered chat: ', frommessages.indexOf(msg)  );      
+                //  frommessages[msg]=[]
+
+                }else{
+                    filteredchat.push(msg)
+                    return   console.log(' array missing user')
+                }
+                
+
+            }
+                )
+
+            return res.send({message:'received to reverse chat id',chat:filteredchat})
+        }
 
        if(tomessages.length === 0 && frommessages.length===0)  return res.send({message:'no messages found',chat:[]}) 
        
