@@ -267,7 +267,7 @@ exports.offlinesocketmessage= async(fromid,toid,messagepayload,io,onlineusers)=>
     const chatid_2=await messagesmodel.findOne({chatid:toid})
 
     console.log('check one: ',chatid_1);
-    console.log('check two: ',chatid_2);
+     console.log('check two: ',chatid_2);
 if(chatid_1==null&&chatid_2==null){
 const messagetosend={
     message:messagepayload.message,
@@ -317,7 +317,8 @@ const messagetosend={
 const from= await usermessagesmodel.findById(messagetosend.from)
 let to= await usermessagesmodel.findById(messagetosend.to)
 
-
+console.log('userchats from id of from',from);
+console.log('userchats from id of to',to);
 //todo ==========================================================================================================================
 if(from==null){
 from=  await usermessagesmodel.create( {_id:messagetosend.from,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()}]})
@@ -337,9 +338,14 @@ const indexoffromchat=from.userchats.map(msg=>msg.chatid)
 console.log('index of from chat to update: ',indexoffromchat);
 // console.log('index of from chat to update: ',indexoffromchat);
 console.log(' chatid to comare: ',messagetosend.chatid);
+if(indexoffromchat==-1){
+    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()})
 
-from.userchats.splice(indexoffromchat,1)
-from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()})
+}else{
+
+    from.userchats.splice(indexoffromchat,1)
+    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()})
+}
 // console.log('sender updated  array: ',from);
 await from.save()
 
@@ -350,8 +356,14 @@ const indexoftochat=to.userchats.map(msg=>msg.chatid).indexOf(messagetosend.chat
 // console.log('to usermessages: ',to.userchats);
 console.log('index of to chat to update: ',indexoftochat);
 
-to.userchats.splice(indexoftochat,1)
-to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()})
+if(indexoftochat==-1){
+    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()})
+
+}else{
+
+    to.userchats.splice(indexoftochat,1)
+    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()})
+}
 
 // console.log('recepient updated  array: ',to);
 await to.save()
@@ -405,19 +417,29 @@ if(to==null){
 if(from!==null) { const indexoffromchat=from.userchats.map(msg=>msg.chatid).indexOf(messagetosend.chatid);
 console.log('index of from chat to update: ',indexoffromchat);
 
+if(indexoffromchat==-1){
+    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()})
 
+}else{
 
-from.userchats.splice(indexoffromchat,1)
-from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()})
+    
+    from.userchats.splice(indexoffromchat,1)
+    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()})
+}
 await from.save()
 
 }
 if(to!==null) { 
 const indexoftochat=to.userchats.map(msg=>msg.chatid).indexOf(messagetosend.chatid)
 console.log('index of to chat to update: ',indexoftochat);
+if(indexoftochat==-1){
+    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()})
 
-to.userchats.splice(indexoftochat,1)
-to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()})
+}else{
+
+    to.userchats.splice(indexoftochat,1)
+    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()})
+}
 await to.save()
 }
 

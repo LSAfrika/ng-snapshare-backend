@@ -9,3 +9,6 @@ rework online message chat uid save both combinations -DONE
 wrong user id saved look into it
 
 add notification socket 
+
+UREGENT!!!!!!
+issue with userchat array it deletes from user who deleted rather than insert resolve by insersting chat id record to user who has deleted it
