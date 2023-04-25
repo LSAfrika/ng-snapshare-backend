@@ -88,12 +88,11 @@ disconnect(socket)
  const sendmessage=(socket)=>{
      
     socket.on('message-sent',async(messagepayload,response)=>{
-        // console.log('payload being received',messagepayload);
+       
         const isuseronline=onlineusers.map(user=> user.uid).includes(messagepayload.to)
-        // console.log('online users',isuseronline);
-        // console.log(messagepayload)
+    
 
- if(isuseronline ===false){
+         if(isuseronline ===false){
     const fromid=messagepayload.from+":"+messagepayload.to
     const toid=messagepayload.to+":"+messagepayload.from
     // console.log('chatid 1',fromid);
@@ -104,13 +103,11 @@ disconnect(socket)
 
         }
 
-        if(isuseronline===true){
+         if(isuseronline===true){
             const recepient= onlineusers.filter(onlineuser=>onlineuser.uid===messagepayload.to)[0]
-            // console.log('chat partner is active',recepient);
-            // console.log('chat partner is active sid',recepient.socketid);
-            // console.log('chat partner is active uid',recepient.uid);
-            console.log('chat partner avtive message',messagepayload);
-// to(recepient.socketid).
+        
+            // console.log('chat partner avtive message',messagepayload);
+
             const senderchatid=messagepayload.chatid
             const recepientchatid=messagepayload.to+":"+messagepayload.from
 
@@ -120,13 +117,15 @@ disconnect(socket)
 
             if(sender==null && receiver==null){
 
-                console.log('initial message sent: ',messagepayload);
+                // console.log('initial message sent: ',messagepayload);
                 await messagesmodel.create(messagepayload)
             
 
-                        const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from})
-                        const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to})
-                        console.log('sender receiver chatlist',senderchatlist,receiverchatlist);
+                        const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from}).populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+                        select:"_id username imgurl lastseen online"}]})
+                        const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to}).populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+                        select:"_id username imgurl lastseen online"}]})
+                        // console.log('sender receiver chatlist',senderchatlist,receiverchatlist);
                         const now=Date.now()
 
                         if(senderchatlist !==null){
@@ -136,9 +135,8 @@ disconnect(socket)
                                 chatingwith:messagepayload.to,
                                 timestamp:now})
 
-                               const updatechatlist= await senderchatlist.save()
-                            // console.log('senderchat list',updatechatlist);
-                            // response({sent:true})
+                            await senderchatlist.save()
+                          
 
 
                         }
@@ -153,29 +151,31 @@ disconnect(socket)
                                 })
 
 
-                                const updatechatlist= await receiverchatlist.save()
-                                // console.log('receiver chat list',updatechatlist);
+                                await receiverchatlist.save()   
+                        console.log('recepient id 1',recepient.soketid);
+                        await receiverchatlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+select:"_id username imgurl lastseen online"}]})
 
-                                response({sent:true})
-         return   socket.to(recepient.soketid).emit('online-message',messagepayload)
+                         socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
+                         return   socket.to(recepient.soketid).emit('online-message',messagepayload)
             
                         }
-          await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
-            chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
+       const senderlist=   await usermessagesmodel.create( 
+        { _id:messagepayload.from,userchats:[{
+            chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]
+        }
+        )
         
-                            await usermessagesmodel.create(
-                                {   _id:messagepayload.to,
-                                    userchats:[
-                                        {chatid:messagepayload.chatid,
-                                        lastmessage:messagepayload.message,
-                                        chatingwith:messagepayload.from,
-                                        timestamp:now
-                                    }
-                                    ]
+       const receiverlist=  await usermessagesmodel.create(
+        {   _id:messagepayload.to,userchats:[{
+            chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.from,timestamp:now}]
         
                                 })
                                 response({sent:true})
-
+                        console.log('recepient id 2',recepient.soketid);
+                        await receiverlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+select:"_id username imgurl lastseen online"}]})
+            socket.to(recepient.soketid).emit('new-message-notification',receiverlist)
             socket.to(recepient.soketid).emit('online-message',messagepayload)
             
 
@@ -187,17 +187,21 @@ disconnect(socket)
             
 
                 const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from})
+                .populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+                           select:"_id username imgurl lastseen online"}]})
                 const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to})
+                .populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+                           select:"_id username imgurl lastseen online"}]})
 
-                console.log('sender not null senderchat list',senderchatlist._id);
-                console.log('sender not null receiverchat list',receiverchatlist._id);
+                 console.log(senderchatlist,' senderchat list id 3');
+                // console.log(receiverchatlist.userchats[0].chatingwith,' receiverchat list id 3');
                 if(senderchatlist !==null){
 
 
                     const index=senderchatlist.userchats.map(msg=>msg.chatid).indexOf(sender.chatid)
 
                     console.log('index sender: ',index);
-
+                    if(index!==-1){
                     senderchatlist.userchats.splice(index,1)
 
                     senderchatlist.userchats.push( {chatid:sender.chatid,
@@ -207,7 +211,7 @@ disconnect(socket)
 
                         await senderchatlist.save()
         
-
+                    }
 
                 }
 
@@ -216,7 +220,7 @@ disconnect(socket)
                     const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(sender.chatid)
 
                     console.log('index  receiver: ',index);
-
+                    if(index!==-1){
                     receiverchatlist.userchats.splice(index,1)
                         receiverchatlist.userchats.push(   
                             {chatid:sender.chatid,
@@ -226,16 +230,23 @@ disconnect(socket)
                         })
 
 await receiverchatlist.save()
+                    }
 response({sent:true})
+                        
+// console.log(receiverchatlist,'recepient id 3 user list');
+console.log('recepient id 3',recepient.soketid);
+await receiverchatlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+select:"_id username imgurl lastseen online"}]})
 
+
+socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
  return   socket.to(recepient.soketid).emit('online-message',messagepayload)
     
                 }
 
-//   await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
-//     chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:Date.now()}]})
 
-                    await usermessagesmodel.create(
+
+            const receiverlsist=  await usermessagesmodel.create(
                         {   _id:messagepayload.to,
                             userchats:[
                                 {chatid:sender.chatid,
@@ -247,8 +258,13 @@ response({sent:true})
 
                         })
                         response({sent:true})
+                        console.log('recepient id 4',recepient.soketid);
 
-    socket.to(recepient.soketid).emit('online-message',messagepayload)
+                        await receiverlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+select:"_id username imgurl lastseen online"}]})
+                       
+                        socket.to(recepient.soketid).emit('new-message-notification',receiverlsist)
+                        socket.to(recepient.soketid).emit('online-message',messagepayload)
             }
 
             if(receiver !=null){
@@ -256,11 +272,11 @@ response({sent:true})
                 const now=Date.now()
             
 
-                const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from})
-                const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to})
+                const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from}).populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+        select:"_id username imgurl lastseen online"}]})
+                const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to}).populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+        select:"_id username imgurl lastseen online"}]})
 
-                console.log('receiver not null senderchat list',senderchatlist._id);
-                console.log('receiver not null receiverchat list',receiverchatlist._id);
           
 
                 if(senderchatlist !==null){
@@ -268,15 +284,17 @@ response({sent:true})
                     const index=senderchatlist.userchats.map(msg=>msg.chatid).indexOf(receiver.chatid)
 
                     console.log('index of senderchatlist : ',index);
+                    if(index!==-1){
 
-                    senderchatlist.userchats.splice(index,1)
-
-                    senderchatlist.userchats.push( {chatid:receiver.chatid,
-                        lastmessage:messagepayload.message,
-                        chatingwith:messagepayload.to,
-                        timestamp:now})
-
-                        await senderchatlist.save()
+                        senderchatlist.userchats.splice(index,1)
+                        
+                        senderchatlist.userchats.push( {chatid:receiver.chatid,
+                            lastmessage:messagepayload.message,
+                            chatingwith:messagepayload.to,
+                            timestamp:now})
+                            
+                            await senderchatlist.save()
+                        }
         
 
 
@@ -288,6 +306,8 @@ response({sent:true})
 
                     console.log('index of receiverchatlist : ',index);
 
+                    if(index !==-1){
+
                     receiverchatlist.userchats.splice(index,1)
 
                         receiverchatlist.userchats.push(   
@@ -298,13 +318,24 @@ response({sent:true})
                         })
 
 await receiverchatlist.save()
+}
+
 response({sent:true})
+
+
+console.log(receiverchatlist,'recepient id 5 chat list');
+console.log('recepient id 5',recepient);
+
+await receiverchatlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+select:"_id username imgurl lastseen online"}]})
+
+socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
 
  return   socket.to(recepient.soketid).emit('online-message',messagepayload)
     
                 }
 
-  await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
+ const receiverlist= await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
     chatid:receiver.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
 
                     // await usermessagesmodel.create(
@@ -319,8 +350,13 @@ response({sent:true})
 
                     //     })
                     response({sent:true})
+                    console.log('recepient id 6',recepient.soketid);
+                    await receiverlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+                          select:"_id username imgurl lastseen online"}]})
 
-    socket.to(recepient.soketid).emit('online-message',messagepayload)
+                    socket.to(recepient.soketid).emit('new-message-notification',receiverlist)
+
+                 socket.to(recepient.soketid).emit('online-message',messagepayload)
             }
         }
 

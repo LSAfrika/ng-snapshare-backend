@@ -179,7 +179,8 @@ exports.retrieveuserchats=async(req,res)=>{
         // const fromchatid=from+":"+to
         // const tochatid=to+":"+from
        
-        const userchatsarray=await usermessagesmodel.findById({_id:userid}).populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
+        const userchatsarray=await usermessagesmodel.findById({_id:userid})
+        .populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
         select:"_id username imgurl lastseen online"}]})
     console.log('msg controller: userchats list',userchatsarray);
         return res.send(userchatsarray)

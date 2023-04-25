@@ -11,6 +11,10 @@ wrong user id saved look into it
 add notification socket 
 
 UREGENT!!!!!!
+
+POLPULATE USER CHATING WITH FIELD
+
 Resolved issue with userchat array it deletes from user who deleted rather than insert resolve by insersting chat id record to user who has deleted it
 
 PLEASE REMEBER CRON JOB TO DELETE CHAT THAT HAVE BEEN DELETED BY BOTH PARTIES
+
