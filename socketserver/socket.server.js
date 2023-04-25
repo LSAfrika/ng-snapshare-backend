@@ -1,4 +1,4 @@
-const {messagesmodel,notficationsmodel,usermessagesmodel, usermodel}=require('../models/main.models')
+const {messagesmodel,usermessagesmodel, usermodel}=require('../models/main.models')
 const{offlinesocketmessage}=require('../controller/messages.controller')
 
 

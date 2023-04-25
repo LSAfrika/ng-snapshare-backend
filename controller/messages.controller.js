@@ -86,7 +86,7 @@ exports.retrieveusermessages=async(req,res)=>{
         const tochatid=to+":"+from
          console.log('to user',tochatid);
        
-        const frommessages=await messagesmodel.find({chatid:fromchatid})   .sort({createdAt:1})
+        const frommessages=await messagesmodel.find({chatid:fromchatid})   .sort({createdAt:-1})
         // .skip(pagination * pagesize)
         // .limit(pagesize) .select("message")
         const tomessages=await messagesmodel.find({chatid:tochatid})   .sort({createdAt:-1})
@@ -109,7 +109,8 @@ exports.retrieveusermessages=async(req,res)=>{
 
                 }else{
                     filteredchat.push(msg)
-                    return   console.log(' array missing user')
+                    return  
+                    console.log(' array missing user')
                 }
                 
 
@@ -141,7 +142,8 @@ exports.retrieveusermessages=async(req,res)=>{
 
                 }else{
                     filteredchat.push(msg)
-                    return   console.log(' array missing user')
+                    return 
+                      console.log(' array missing user')
                 }
                 
 
