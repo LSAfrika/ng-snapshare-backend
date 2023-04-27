@@ -21,7 +21,9 @@ module.exports = (server)=> {
                 return next(new Error('Authentication error'));
             
             }
-            await usermodel.findByIdAndUpdate(socket.handshake.query.uid,{online:true})
+          const useronline=  await usermodel.findById(socket.handshake.query.uid)
+          useronline.online=true
+          await useronline.save()
 
             const newuserlist=    onlineusers.filter(user=>user.uid!==socket.handshake.query.uid)
             onlineusers=newuserlist
@@ -65,8 +67,12 @@ disconnect(socket)
             console.log(socket.id)
         const disconnectinguserindex=    onlineusers.map(user=>user.soketid).indexOf(socket.id)
         const disconectuser=onlineusers[disconnectinguserindex]
-        await usermodel.findByIdAndUpdate(disconectuser.uid,{online:false,lastseen:Date.now()})
-        console.log('user who is diconrcting',disconectuser);
+        const userdisconnect=await usermodel.findById(disconectuser.uid)
+
+        userdisconnect.online=false
+        userdisconnect.lastseen=Date.now()
+        await userdisconnect.save()
+        console.log('user who is diconrcting',disconectuser); 
         onlineusers.splice(disconnectinguserindex,1)
         // console.log('index of offline user',disconnectinguserindex);
         // onlineusers=newuserlist
