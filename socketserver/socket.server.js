@@ -128,9 +128,9 @@ disconnect(socket)
             
 
                         const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from}).populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
-                        select:"_id username imgurl lastseen online"}]})
+                        select:"_id username imgurl lastseen online unreadcounter"}]})
                         const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to}).populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
-                        select:"_id username imgurl lastseen online"}]})
+                        select:"_id username imgurl lastseen online unreadcounter"}]})
                         // console.log('sender receiver chatlist',senderchatlist,receiverchatlist);
                         const now=Date.now()
 
@@ -139,7 +139,7 @@ disconnect(socket)
                             senderchatlist.userchats.push( {chatid:messagepayload.chatid,
                                 lastmessage:messagepayload.message,
                                 chatingwith:messagepayload.to,
-                                timestamp:now})
+                                timestamp:now,unreadcounter:0})
 
                             await senderchatlist.save()
                           
@@ -153,7 +153,8 @@ disconnect(socket)
                                     {chatid:messagepayload.chatid,
                                     lastmessage:messagepayload.message,
                                     chatingwith:messagepayload.from,
-                                    timestamp:now
+                                    timestamp:now,
+                                    unreadcounter:0
                                 })
 
 
@@ -168,13 +169,14 @@ select:"_id username imgurl lastseen online"}]})
                         }
        const senderlist=   await usermessagesmodel.create( 
         { _id:messagepayload.from,userchats:[{
-            chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]
+            chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now,unreadcounter:0
+        }]
         }
         )
         
        const receiverlist=  await usermessagesmodel.create(
         {   _id:messagepayload.to,userchats:[{
-            chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.from,timestamp:now}]
+            chatid:messagepayload.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.from,timestamp:now,unreadcounter:1}]
         
                                 })
                                 response({sent:true})
@@ -194,13 +196,12 @@ select:"_id username imgurl lastseen online"}]})
 
                 const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from})
                 .populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
-                           select:"_id username imgurl lastseen online"}]})
+                           select:"_id username imgurl lastseen online unreadcounter"}]})
                 const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to})
                 .populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
-                           select:"_id username imgurl lastseen online"}]})
+                           select:"_id username imgurl lastseen online unreadcounter"}]})
 
                  console.log(senderchatlist,' senderchat list id 3');
-                // console.log(receiverchatlist.userchats[0].chatingwith,' receiverchat list id 3');
                 if(senderchatlist !==null){
 
 
@@ -213,7 +214,8 @@ select:"_id username imgurl lastseen online"}]})
                     senderchatlist.userchats.push( {chatid:sender.chatid,
                         lastmessage:messagepayload.message,
                         chatingwith:messagepayload.to,
-                        timestamp:now})
+                        timestamp:now,
+                    unreadcounter:0})
 
                         await senderchatlist.save()
         
@@ -224,7 +226,7 @@ select:"_id username imgurl lastseen online"}]})
                 if(receiverchatlist !==null){
 
                     const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(sender.chatid)
-
+let counterupdate=receiverchatlist.userchats[0].unreadcounter
                     console.log('index  receiver: ',index);
                     if(index!==-1){
                     receiverchatlist.userchats.splice(index,1)
@@ -232,7 +234,8 @@ select:"_id username imgurl lastseen online"}]})
                             {chatid:sender.chatid,
                             lastmessage:messagepayload.message,
                             chatingwith:messagepayload.from,
-                            timestamp:now
+                            timestamp:now,
+                            unreadcounter:counterupdate+1
                         })
 
 await receiverchatlist.save()
@@ -258,7 +261,7 @@ socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
                                 {chatid:sender.chatid,
                                 lastmessage:messagepayload.message,
                                 chatingwith:messagepayload.from,
-                                timestamp:now
+                                timestamp:now,unreadcounter:1
                             }
                             ]
 
@@ -279,9 +282,9 @@ select:"_id username imgurl lastseen online"}]})
             
 
                 const senderchatlist= await usermessagesmodel.findById({_id:messagepayload.from}).populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
-        select:"_id username imgurl lastseen online"}]})
+        select:"_id username imgurl lastseen online unreadcounter"}]})
                 const receiverchatlist= await usermessagesmodel.findById({_id:messagepayload.to}).populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
-        select:"_id username imgurl lastseen online"}]})
+        select:"_id username imgurl lastseen online unreadcounter"}]})
 
           
 
@@ -297,7 +300,8 @@ select:"_id username imgurl lastseen online"}]})
                         senderchatlist.userchats.push( {chatid:receiver.chatid,
                             lastmessage:messagepayload.message,
                             chatingwith:messagepayload.to,
-                            timestamp:now})
+                            timestamp:now,unreadcounter:0
+                        })
                             
                             await senderchatlist.save()
                         }
@@ -313,6 +317,7 @@ select:"_id username imgurl lastseen online"}]})
                     console.log('index of receiverchatlist : ',index);
 
                     if(index !==-1){
+                let counterupdate=receiverchatlist.userchats[0].unreadcounter
 
                     receiverchatlist.userchats.splice(index,1)
 
@@ -320,7 +325,8 @@ select:"_id username imgurl lastseen online"}]})
                             {chatid:receiver.chatid,
                             lastmessage:messagepayload.message,
                             chatingwith:messagepayload.from,
-                            timestamp:now
+                            timestamp:now,
+                            unreadcounter:counter+1
                         })
 
 await receiverchatlist.save()
@@ -342,19 +348,8 @@ socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
                 }
 
  const receiverlist= await usermessagesmodel.create( { _id:messagepayload.from,userchats:[{
-    chatid:receiver.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now}]})
+    chatid:receiver.chatid,lastmessage:messagepayload.message,chatingwith:messagepayload.to,timestamp:now,unreadcounter:1}]})
 
-                    // await usermessagesmodel.create(
-                    //     {   _id:messagepayload.to,
-                    //         userchats:[
-                    //             {chatid:messagepayload.chatid,
-                    //             lastmessage:messagepayload.message,
-                    //             chatingwith:messagepayload.from,
-                    //             timestamp:Date.now()
-                    //         }
-                    //         ]
-
-                    //     })
                     response({sent:true})
                     console.log('recepient id 6',recepient.soketid);
                     await receiverlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",

@@ -232,11 +232,14 @@ exports.deletechatthread=async(req,res)=>{
 
        const indexofchatid= userchatlist.userchats.map(chat=> chat.chatid).indexOf(threadid)
        userchatlist.userchats.splice(indexofchatid,1)
-          await userchatlist.save()
-       //return res.send({userchats:userchatlist.userchats,indexofchatid})
+       if(indexofchatid !== -1)  await userchatlist.save()
+     
     
             const indexofchattoremove= userchatlist.userchats.map(elem=> elem.chatid).indexOf(threadid)
            // console.log('index for deletion',indexofchattoremove);
+           if(indexofchattoremove !==-1){
+
+         
             userchatlist.userchats.splice(indexofchattoremove,1)
           userthread.forEach(async(thread)=>{
             if(thread.deletechat.includes(userid)){
@@ -253,6 +256,9 @@ exports.deletechatthread=async(req,res)=>{
          
 
        return res.send({message:'successfully deleted user thread'})
+    }
+
+    res.send({message:'no chat deleted'})
         }
         throw new Error('chat owner missmatch')
 
@@ -282,9 +288,9 @@ await messagesmodel.create({...messagetosend})
 
 const senderhaschats= await usermessagesmodel.findById({_id:messagetosend.from})
 const receiverhaschats= await usermessagesmodel.findById({_id:messagetosend.to})
-
-if(senderhaschats==null)    await usermessagesmodel.create({_id:messagetosend.from,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()}]})
-if(receiverhaschats==null)    await usermessagesmodel.create( {_id:messagetosend.to,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()}]})
+const createtime=Date.now()
+if(senderhaschats==null)    await usermessagesmodel.create({_id:messagetosend.from,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:createtime,unreadcounter:0}]})
+if(receiverhaschats==null)    await usermessagesmodel.create( {_id:messagetosend.to,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:createtime,unreadcounter:1}]})
 
 if(senderhaschats!==null)  {
 
@@ -324,11 +330,11 @@ console.log('userchats from id of from',from);
 console.log('userchats from id of to',to);
 //todo ==========================================================================================================================
 if(from==null){
-from=  await usermessagesmodel.create( {_id:messagetosend.from,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()}]})
+from=  await usermessagesmodel.create( {_id:messagetosend.from,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now(),unreadcounter:0}]})
 
 }
 if(to==null){
-to=  await usermessagesmodel.create( {_id:messagetosend.to,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()}]})
+to=  await usermessagesmodel.create( {_id:messagetosend.to,userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now(),unreadcounter:1}]})
 
 }
 
@@ -342,12 +348,12 @@ console.log('index of from chat to update: ',indexoffromchat);
 // console.log('index of from chat to update: ',indexoffromchat);
 console.log(' chatid to comare: ',messagetosend.chatid);
 if(indexoffromchat==-1){
-    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()})
+    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now(),unreadcounter:0})
 
 }else{
 
     from.userchats.splice(indexoffromchat,1)
-    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()})
+    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now(),unreadcounter:o})
 }
 // console.log('sender updated  array: ',from);
 await from.save()
@@ -360,12 +366,13 @@ const indexoftochat=to.userchats.map(msg=>msg.chatid).indexOf(messagetosend.chat
 console.log('index of to chat to update: ',indexoftochat);
 
 if(indexoftochat==-1){
-    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()})
+    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now(),unreadcounter:1})
 
 }else{
+    let updatecounter=to.userchats[indexoftochat].unreadcounter +1
 
     to.userchats.splice(indexoftochat,1)
-    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()})
+    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now(),unreadcounter:updatecounter})
 }
 
 // console.log('recepient updated  array: ',to);
@@ -406,13 +413,13 @@ const to= await usermessagesmodel.findById(messagetosend.to)
 
 if(from==null){
 from=  await usermessagesmodel.create( {_id:messagetosend.from,
-userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()}]})
+userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now(),unreadcounter:0}]})
 
 }
 
 if(to==null){
     to=  await usermessagesmodel.create( {_id:messagetosend.to,
-    userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()}]})
+    userchats:[{chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now(),unreadcounter:1}]})
     
     }
 //todo ==========================================================================================================================
@@ -421,13 +428,13 @@ if(from!==null) { const indexoffromchat=from.userchats.map(msg=>msg.chatid).inde
 console.log('index of from chat to update: ',indexoffromchat);
 
 if(indexoffromchat==-1){
-    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()})
+    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now(),unreadcounter:0})
 
 }else{
 
     
     from.userchats.splice(indexoffromchat,1)
-    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now()})
+    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now(),unreadcounter:0})
 }
 await from.save()
 
@@ -436,12 +443,12 @@ if(to!==null) {
 const indexoftochat=to.userchats.map(msg=>msg.chatid).indexOf(messagetosend.chatid)
 console.log('index of to chat to update: ',indexoftochat);
 if(indexoftochat==-1){
-    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()})
+    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now(),unreadcounter:1})
 
 }else{
-
+    let updatecounter=to.userchats[indexoftochat].unreadcounter +1
     to.userchats.splice(indexoftochat,1)
-    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now()})
+    to.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.from,timestamp:Date.now(),unreadcounter:updatecounter})
 }
 await to.save()
 }
@@ -463,3 +470,22 @@ io.to(onlineusers).emit('receive-offline-message',messagetosend)
 
 }
 }
+
+ exports.resetunreadcounter=async(req,res)=>{
+    try {
+        chatid=req.params.chatid
+        const {userid}=req.body
+const userchatlist= await usermessagesmodel.findById(userid)
+
+if (userchatlist==null)return res.send({message:'no user chatlist',userchats:[]})
+
+const index=userchatlist.userchats.map(msg=>msg.chatid).indexOf(chatid);
+if(index ==-1)return res.send({message:'no chat in chatarray'})
+
+userchatlist.userchats[index].unreadcounter=0
+await userchatlist.save()
+        return res.send({chatid,userid,userchatlist,index})
+    } catch (error) {
+        
+    }
+ }

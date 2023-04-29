@@ -110,7 +110,8 @@ exports.postsmodel = mongoose.model(
         chatid:{type:String,required:true},
         chatingwith:{type:mongoose.Schema.Types.ObjectId,required:true,ref:"USER"},
         lastmessage:{type:String,required:true},
-        timestamp:{type:Number,required:true,default:Date.now()}
+        timestamp:{type:Number,required:true,default:Date.now()},
+        unreadcounter:{type:Number,required:true,default:0}
       }]
 
     }))
