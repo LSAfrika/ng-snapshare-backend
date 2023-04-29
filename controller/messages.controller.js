@@ -484,7 +484,7 @@ if(index ==-1)return res.send({message:'no chat in chatarray'})
 
 userchatlist.userchats[index].unreadcounter=0
 await userchatlist.save()
-        return res.send({chatid,userid,userchatlist,index})
+        return res.send({message:'success'})
     } catch (error) {
         
     }
