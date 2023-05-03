@@ -23,3 +23,20 @@ res.send(notifications)
         
     }
 }
+
+exports.unreadnotficationscount=async(req,res)=>{
+    try {
+        // const postid=req.params.postid
+        const {userid}=req.body
+        const postnotificationarray=await notficationsmodel.find({postowner:userid})
+        if(postnotificationarray==0)return res.send({message:'no unread notifications'})
+        const notificationcounter= postnotificationarray.filter(post=>post.viewed==false)
+    //    return res.send({count:notificationcounter})
+        res.send({count:notificationcounter.length})
+        
+    } catch (error) {
+        res.send({error})
+
+        
+    }
+}

@@ -489,3 +489,15 @@ await userchatlist.save()
         
     }
  }
+
+ exports.unreadmessages=async(req,res)=>{
+    try {
+        const {userid}=req.body
+        const usermessagesmap=await usermessagesmodel.findById(userid)
+        if(usermessagesmap==null)return res.send({message:'user has no messages'})
+      const unreadcounter=  usermessagesmap.userchats.map(chat=>chat.unreadcounter).filter(count=>count>0)
+        res.send({count:unreadcounter.length})
+    } catch (error) {
+        res.send({error})
+    }
+ }
