@@ -159,7 +159,7 @@ disconnect(socket)
 
 
                                 await receiverchatlist.save()   
-                        console.log('recepient id 1',recepient.soketid);
+                        // console.log('recepient id 1',recepient.soketid);
                         await receiverchatlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
 select:"_id username imgurl lastseen online"}]})
 
@@ -226,9 +226,11 @@ select:"_id username imgurl lastseen online"}]})
                 if(receiverchatlist !==null){
 
                     const index=receiverchatlist.userchats.map(msg=>msg.chatid).indexOf(sender.chatid)
-let counterupdate=receiverchatlist.userchats[0].unreadcounter
-                    console.log('index  receiver: ',index);
                     if(index!==-1){
+                let counterupdate=receiverchatlist.userchats[index].unreadcounter
+                console.log('saved counter notfication 3',counterupdate);
+
+                    // console.log('index  receiver: ',index);
                     receiverchatlist.userchats.splice(index,1)
                         receiverchatlist.userchats.push(   
                             {chatid:sender.chatid,
@@ -244,6 +246,8 @@ response({sent:true})
                         
 // console.log(receiverchatlist,'recepient id 3 user list');
 console.log('recepient id 3',recepient.soketid);
+
+
 await receiverchatlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
 select:"_id username imgurl lastseen online"}]})
 
@@ -317,7 +321,8 @@ select:"_id username imgurl lastseen online"}]})
                     console.log('index of receiverchatlist : ',index);
 
                     if(index !==-1){
-                let counterupdate=receiverchatlist.userchats[0].unreadcounter
+                let counterupdate=receiverchatlist.userchats[index].unreadcounter
+                console.log('saved counter notfication 5',counterupdate);
 
                     receiverchatlist.userchats.splice(index,1)
 
@@ -326,7 +331,7 @@ select:"_id username imgurl lastseen online"}]})
                             lastmessage:messagepayload.message,
                             chatingwith:messagepayload.from,
                             timestamp:now,
-                            unreadcounter:counter+1
+                            unreadcounter:counterupdate+1
                         })
 
 await receiverchatlist.save()
