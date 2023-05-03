@@ -353,7 +353,7 @@ if(indexoffromchat==-1){
 }else{
 
     from.userchats.splice(indexoffromchat,1)
-    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now(),unreadcounter:o})
+    from.userchats.push({chatid:messagetosend.chatid,lastmessage:messagetosend.message,chatingwith:messagetosend.to,timestamp:Date.now(),unreadcounter:0})
 }
 // console.log('sender updated  array: ',from);
 await from.save()
