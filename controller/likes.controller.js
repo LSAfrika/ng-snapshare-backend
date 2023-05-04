@@ -45,14 +45,6 @@ console.log('like notfication to delete:',removenotification);
     res.send({message:'removed like and notification for like' ,posttolike,removenotification})
 }
 
-return
-posttolike.likes.push(userid)
- 
-await posttolike.save()
-
-// if(posttolike)
-// console.log('ad to like: \n',posttolike);
-res.send(posttolike)
     
 } catch (error) {
     res.send({errormessage:error.message})
