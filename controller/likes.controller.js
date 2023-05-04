@@ -39,8 +39,8 @@ res.send({posttolike,notification})
      posttolike.likes.splice(indexofuserlike,1)
 
      await posttolike.save()
-const removenotification= await notficationsmodel.findOneAndDelete({notificationowner:userid})
-
+const removenotification= await notficationsmodel.findOneAndDelete({post:posttolike._id , notificationowner:userid,notificationtype:3})
+console.log('like notfication to delete:',removenotification);
 
     res.send({message:'removed like and notification for like' ,posttolike,removenotification})
 }
