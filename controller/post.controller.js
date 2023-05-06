@@ -114,6 +114,36 @@ exports.getuserposts=async(req,res)=>{
 
 }
 
+exports.markpostviewed=async(req,res)=>{
+    try {
+        const{userid}=req.body
+        const postid=req.params.id
+        const notifications=await notficationsmodel.find({post:postid,postowner:userid,viewed:false})
+
+        if(notifications.length==0)return res.send({message:'all notfications marked as viewed'})
+
+        
+
+        notifications.forEach(async(notice) => {
+
+            try {
+                notice.viewed=true
+
+                await notice.save()
+            } catch (error) {
+                console.log('error while uptaing viewed field');
+            }
+            
+        });
+
+        res.send({message:'all notifications viewed status updated to true'})
+
+    } catch (error) {
+        console.log('mark viewed post error: \n',error);
+        res.send({errormessage:'error occured while updating views and likes to true',error})
+    }
+}
+
 
 
 
