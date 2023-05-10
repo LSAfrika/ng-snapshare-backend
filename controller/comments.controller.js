@@ -29,7 +29,62 @@ exports.postcomment=async(req,res)=>{
 
              
 
-                if(createcomment.ownerid.toString()==post.user) return res.send({message:'comment posted succesfully',post})
+                if(createcomment.ownerid.toString()==post.user) {
+                    
+                    const sendnotficationtosubscribeduser=await postsmodel.findById(postid)
+                    .populate(
+                   {path:'comments',
+                    select:"comment ownerid _id updatedAt createdAt",
+                    model:"COMMENTS" 
+                    // populate:[
+                    //    {path:'ownerid',
+                    //    model:"USER",
+                    //    select:"_id username imgurl"
+                    //    }
+                    //         ]
+                   }
+                   )  .populate(
+                       {path:'likes',
+                        select:"imgurl _id username",
+                        model:"USER" ,
+                    
+                       }
+                       )
+
+                       const postowner=sendnotficationtosubscribeduser.user.toString()
+                    // sendnotficationtosubscribeduser.comments
+                 
+
+                    const returncommentownerid=sendnotficationtosubscribeduser.comments.map(com=> com.ownerid.toString())
+                    const finalidstosendnotification=[...new Set(returncommentownerid)]
+                    console.log('comment owner id: ',returncommentownerid);
+                    console.log('comment owner id filtered: ',finalidstosendnotification);
+                    console.log('post owner: ',postowner);
+
+
+                    finalidstosendnotification.forEach(async(commenter)=>{
+
+                        if(commenter!==postowner){
+
+                            const notificationpayload={
+                                commentid:createcomment._id,
+                                post:post._id,
+                                
+                                notificationowner:postowner,
+                                boradcastnotfication:commenter,
+                                notificationtype:2
+                            
+                            }
+
+                            await notficationsmodel.create({...notificationpayload})
+
+                        }
+
+
+                    })
+                    return res.send({message:'comment posted succesfully',sendnotficationtosubscribeduser})
+                
+                }
                 
                 const notificationpayload={
                     commentid:createcomment._id,
