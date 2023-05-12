@@ -119,7 +119,8 @@ exports.markpostviewed=async(req,res)=>{
         const{userid}=req.body
         const postid=req.params.id
         const notifications=await notficationsmodel.find({post:postid,postowner:userid,viewed:false})
-
+        const boradcastednotfication= await notficationsmodel.find({post:postid,boradcastnotfication:userid,viewed:false})
+        console.log('broadcast notifier: ',boradcastednotfication);
         if(notifications.length==0)return res.send({message:'all notfications marked as viewed'})
 
         
@@ -144,7 +145,36 @@ exports.markpostviewed=async(req,res)=>{
     }
 }
 
+exports.markbroadcastnotficationviewed=async(req,res)=>{
+    try {
+        const{userid}=req.body
+        const postid=req.params.id
+        // const notifications=await notficationsmodel.find({post:postid,postowner:userid,viewed:false})
+        const boradcastednotfication= await notficationsmodel.find({post:postid,boradcastnotfication:userid,viewed:false})
+        console.log('broadcast notifier: ',boradcastednotfication);
+        if(boradcastednotfication.length==0)return res.send({message:'all notfications marked as viewed'})
 
+        
+
+        boradcastednotfication.forEach(async(notice) => {
+
+            try {
+                notice.viewed=true
+
+                await notice.save()
+            } catch (error) {
+                console.log('error while uptaing viewed field');
+            }
+            
+        });
+
+        res.send({message:'all notifications viewed status updated to true'})
+
+    } catch (error) {
+        console.log('mark viewed post error: \n',error);
+        res.send({errormessage:'error occured while updating views and likes to true',error})
+    }
+}
 
 
 
