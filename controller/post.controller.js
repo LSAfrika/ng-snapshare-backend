@@ -120,7 +120,7 @@ exports.markpostviewed=async(req,res)=>{
         const postid=req.params.id
         const notifications=await notficationsmodel.find({post:postid,postowner:userid,viewed:false})
         const boradcastednotfication= await notficationsmodel.find({post:postid,boradcastnotfication:userid,viewed:false})
-        console.log('broadcast notifier: ',boradcastednotfication);
+        // console.log('broadcast notifier: ',boradcastednotfication);
         if(notifications.length==0)return res.send({message:'all notfications marked as viewed'})
 
         
@@ -151,7 +151,7 @@ exports.markbroadcastnotficationviewed=async(req,res)=>{
         const postid=req.params.id
         // const notifications=await notficationsmodel.find({post:postid,postowner:userid,viewed:false})
         const boradcastednotfication= await notficationsmodel.find({post:postid,boradcastnotfication:userid,viewed:false})
-        console.log('broadcast notifier: ',boradcastednotfication);
+        // console.log('broadcast notifier: ',boradcastednotfication);
         if(boradcastednotfication.length==0)return res.send({message:'all notfications marked as viewed'})
 
         

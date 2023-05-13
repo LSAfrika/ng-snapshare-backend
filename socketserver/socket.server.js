@@ -1,4 +1,4 @@
-const {messagesmodel,usermessagesmodel, usermodel}=require('../models/main.models')
+const {messagesmodel,usermessagesmodel, usermodel,postsmodel}=require('../models/main.models')
 const{offlinesocketmessage}=require('../controller/messages.controller')
 
 
@@ -49,7 +49,7 @@ module.exports = (server)=> {
 // userconnect(socket)
 sendmessage(socket)
 
-
+usernotifications(socket)
 disconnect(socket)
 
 
@@ -80,13 +80,56 @@ disconnect(socket)
           }); 
     }
 
- const userconnect=(socket)=>{
-    socket.on('userconnect',(joineduser)=>{
+ const usernotifications=(socket)=>{
+    socket.on('emitnotification',async(Notificationpayload)=>{
 
-        const newconnection={...joineduser,socketid:socket.id}
+       try {
+        // console.log('post id',Notificationpayload);
+        const snapshare= await postsmodel.findById({_id:Notificationpayload.postid}).select('user ')   .populate(
+            {path:'comments',
+             select:"-_id ownerid ",
+             model:"COMMENTS" 
+             // populate:[
+             //    {path:'ownerid',
+             //    model:"USER",
+             //    select:"_id username imgurl"
+             //    }
+             //         ]
+            }
+            )
 
-        onlineusers.push(newconnection)
-        console.log('user has connected',onlineusers);
+       if(snapshare!=null)   {
+        //  console.log('post ',snapshare);
+        // const postowner =snapshare.user.toString()
+        const filteredcommenteruid=[...new Set(snapshare.comments.map(comm=>comm.ownerid.toString()))]
+          console.log('fetched snapshare: ,',filteredcommenteruid);
+      
+
+        filteredcommenteruid.forEach(uid => {
+
+          
+
+            if(uid !== Notificationpayload.userid){
+                console.log('emmiting to ',uid);
+                console.log('emmiting from ',Notificationpayload.userid);
+                commentnotifier={comment:'new comment'}
+
+                let index=onlineusers.map(user=>user.uid).indexOf(uid)
+                if(index !=-1){
+                    let socketid= onlineusers[index].soketid
+                    socket.to(socketid).emit('comment_notification',commentnotifier)
+                }
+            }
+            
+        });
+
+    }
+        
+       } catch (error) {
+        
+       }
+       
+
     })
  }
 

@@ -57,9 +57,9 @@ exports.postcomment=async(req,res)=>{
 
                     const returncommentownerid=sendnotficationtosubscribeduser.comments.map(com=> com.ownerid.toString())
                     const finalidstosendnotification=[...new Set(returncommentownerid)]
-                    console.log('comment owner id: ',returncommentownerid);
-                    console.log('comment owner id filtered: ',finalidstosendnotification);
-                    console.log('post owner: ',postowner);
+                  //  console.log('comment owner id: ',returncommentownerid);
+                  //  console.log('comment owner id filtered: ',finalidstosendnotification);
+                  //  console.log('post owner: ',postowner);
 
 
                     finalidstosendnotification.forEach(async(commenter)=>{
