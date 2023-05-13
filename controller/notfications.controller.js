@@ -7,7 +7,7 @@ exports.getnotfications=async(req,res)=>{
     try {
         const {userid}=req.body
         // res.send(userid)
-        const pagesize = 5;
+        const pagesize = 10;
         let pagination = req.query.pagination;
     //    console.log(pagination)
 const notifications=await notficationsmodel.find({$or:[{postowner:userid},{boradcastnotfication:userid}]}).sort({createdAt:-1})
