@@ -12,8 +12,8 @@ exports.getnotfications=async(req,res)=>{
     //    console.log(pagination)
 const notifications=await notficationsmodel.find({$or:[{postowner:userid},{boradcastnotfication:userid}]}).sort({createdAt:-1})
 .skip(pagination * pagesize) .limit(pagesize)
-.populate({path:'notificationowner',select:'imgurl username',model:'USER'})
-.populate({path:'commentid',select:'comment',model:'COMMENTS'})
+.populate({path:'notificationowner',select:'imgurl username',model:'USER'})  
+.populate({path:'commentid',select:'comment',model:'COMMENTS'}) 
 
 // if(notifications.length==0) return res.send(notifications)
 
