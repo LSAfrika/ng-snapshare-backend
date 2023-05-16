@@ -140,9 +140,9 @@ disconnect(socket)
        
         console.log('message payload',messagepayload.message);
       const trimmedmessage=  messagepayload.message.match(/&nbsp;/)
-      console.log('trimmed message payload',trimmedmessage.length);
+      console.log('trimmed message payload',trimmedmessage);
 
-      if(trimmedmessage.length>0){
+      if(trimmedmessage !=null){
         const messagetosave=messagepayload.message.replace('&nbsp;','')
         console.log('message to save db',messagetosave);
         messagepayload.message=messagetosave
