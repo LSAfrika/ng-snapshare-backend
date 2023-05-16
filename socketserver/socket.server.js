@@ -233,8 +233,11 @@ disconnect(socket)
                         await receiverchatlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
 select:"_id username imgurl lastseen online"}]})
 
+                         socket.to(recepient.soketid).emit('live_message_notification',{messagecount:'counter'})     
                          socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
-                    socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
+                        //  socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
+                        
+                         socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
 
                          return   socket.to(recepient.soketid).emit('online-message',messagepayload)
             
