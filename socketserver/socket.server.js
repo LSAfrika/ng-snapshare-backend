@@ -239,7 +239,7 @@ select:"_id username imgurl lastseen online"}]})
                         
                          socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
 
-                         return   socket.to(recepient.soketid).emit('online-message',messagepayload)
+                         return  socket.to(recepient.soketid).emit('online-message',messagepayload)
             
                         }
        const senderlist=   await usermessagesmodel.create( 
@@ -260,6 +260,8 @@ select:"_id username imgurl lastseen online"}]})
 select:"_id username imgurl lastseen online"}]})
             socket.to(recepient.soketid).emit('new-message-notification',receiverlist)
             socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
+                         socket.to(recepient.soketid).emit('live_message_notification',{messagecount:'counter'})     
+
             socket.to(recepient.soketid).emit('online-message',messagepayload)
             
 
@@ -330,6 +332,8 @@ select:"_id username imgurl lastseen online"}]})
 
 socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
 socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
+socket.to(recepient.soketid).emit('live_message_notification',{messagecount:'counter'})     
+
  return   socket.to(recepient.soketid).emit('online-message',messagepayload)
     
                 }
@@ -355,6 +359,8 @@ select:"_id username imgurl lastseen online"}]})
                        
                         socket.to(recepient.soketid).emit('new-message-notification',receiverlsist)
                         socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
+                        socket.to(recepient.soketid).emit('live_message_notification',{messagecount:'counter'})     
+
                         socket.to(recepient.soketid).emit('online-message',messagepayload)
             }
 
@@ -426,6 +432,8 @@ select:"_id username imgurl lastseen online"}]})
 
 socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
 socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
+socket.to(recepient.soketid).emit('live_message_notification',{messagecount:'counter'})     
+
  return   socket.to(recepient.soketid).emit('online-message',messagepayload)
     
                 }
@@ -440,6 +448,8 @@ socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'}
 
                     socket.to(recepient.soketid).emit('new-message-notification',receiverlist)
                     socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
+                    socket.to(recepient.soketid).emit('live_message_notification',{messagecount:'counter'})     
+
                  socket.to(recepient.soketid).emit('online-message',messagepayload)
             }
         }
