@@ -102,14 +102,18 @@ disconnect(socket)
         //  console.log('post ',snapshare);
         // const postowner =snapshare.user.toString()
         const filteredcommenteruid=[...new Set(snapshare.comments.map(comm=>comm.ownerid.toString()))]
-          console.log('fetched snapshare: ,',filteredcommenteruid);
+          console.log('fetched snapshare comment user id: ,',filteredcommenteruid);
       
+          const postownerid=snapshare.user._id.toString()
 
         filteredcommenteruid.forEach(uid => {
 
-          
+          console.log(uid);
+          console.log(Notificationpayload.userid);
+          console.log('snapshare user id',postownerid);
 
-            if(uid !== Notificationpayload.userid){
+          // todo BROADCAST TO OTHER USERS
+            if(uid !== Notificationpayload.userid && uid !==postownerid){
                 console.log('emmiting to ',uid);
                 console.log('emmiting from ',Notificationpayload.userid);
                 commentnotifier={comment:'new comment'}
@@ -118,14 +122,27 @@ disconnect(socket)
                 if(index !=-1){
                     let socketid= onlineusers[index].soketid
                     socket.to(socketid).emit('comment_notification',commentnotifier)
+                    socket.to(socketid).emit('global_notification',{notification:'emitted'})
                 }
             }
             
         });
 
+        let index=onlineusers.map(user=>user.uid).indexOf(postownerid)
+        if(index !=-1){
+            let socketid= onlineusers[index].soketid
+            socket.to(socketid).emit('comment_notification',{commentnotifier:'new comment'})
+            socket.to(socketid).emit('global_notification',{notification:'emitted'})
+        }
+       
+        // socket.to(socketid).emit('comment_notification',commentnotifier)
+
+
     }
         
        } catch (error) {
+
+        console.log('error from notification socket ',error.message);
         
        }
        
@@ -217,6 +234,8 @@ disconnect(socket)
 select:"_id username imgurl lastseen online"}]})
 
                          socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
+                    socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
+
                          return   socket.to(recepient.soketid).emit('online-message',messagepayload)
             
                         }
@@ -237,6 +256,7 @@ select:"_id username imgurl lastseen online"}]})
                         await receiverlist.populate({path:'userchats',populate:[{path:'chatingwith', model:"USER",
 select:"_id username imgurl lastseen online"}]})
             socket.to(recepient.soketid).emit('new-message-notification',receiverlist)
+            socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
             socket.to(recepient.soketid).emit('online-message',messagepayload)
             
 
@@ -306,6 +326,7 @@ select:"_id username imgurl lastseen online"}]})
 
 
 socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
+socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
  return   socket.to(recepient.soketid).emit('online-message',messagepayload)
     
                 }
@@ -330,6 +351,7 @@ socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
 select:"_id username imgurl lastseen online"}]})
                        
                         socket.to(recepient.soketid).emit('new-message-notification',receiverlsist)
+                        socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
                         socket.to(recepient.soketid).emit('online-message',messagepayload)
             }
 
@@ -400,7 +422,7 @@ await receiverchatlist.populate({path:'userchats',populate:[{path:'chatingwith',
 select:"_id username imgurl lastseen online"}]})
 
 socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
-
+socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
  return   socket.to(recepient.soketid).emit('online-message',messagepayload)
     
                 }
@@ -414,7 +436,7 @@ socket.to(recepient.soketid).emit('new-message-notification',receiverchatlist)
                           select:"_id username imgurl lastseen online"}]})
 
                     socket.to(recepient.soketid).emit('new-message-notification',receiverlist)
-
+                    socket.to(recepient.soketid).emit('global_notification',{notification:'emitted'})
                  socket.to(recepient.soketid).emit('online-message',messagepayload)
             }
         }
