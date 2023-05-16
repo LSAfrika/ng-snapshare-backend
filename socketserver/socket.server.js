@@ -138,6 +138,16 @@ disconnect(socket)
      
     socket.on('message-sent',async(messagepayload,response)=>{
        
+        console.log('message payload',messagepayload.message);
+      const trimmedmessage=  messagepayload.message.match(/&nbsp;/)
+      console.log('trimmed message payload',trimmedmessage.length);
+
+      if(trimmedmessage.length>0){
+        const messagetosave=messagepayload.message.replace('&nbsp;','')
+        console.log('message to save db',messagetosave);
+        messagepayload.message=messagetosave
+      }
+
         const isuseronline=onlineusers.map(user=> user.uid).includes(messagepayload.to)
     
 
