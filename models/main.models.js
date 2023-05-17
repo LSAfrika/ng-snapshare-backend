@@ -72,11 +72,11 @@ exports.postsmodel = mongoose.model(
       new mongoose.Schema(
         {
           commentid:{type:mongoose.Schema.Types.ObjectId,ref:'comments'},
-          post: { type: mongoose.Schema.Types.ObjectId, required: true,ref:'POST' },
+          post: { type: mongoose.Schema.Types.ObjectId,ref:'POST' },
           postowner:{type:mongoose.Schema.Types.ObjectId,ref:'USER'},
           boradcastnotfication:{type:mongoose.Schema.Types.ObjectId,ref:'USER'},
          notificationowner:{type:mongoose.Schema.Types.ObjectId,required:true,ref:'USER'},
-          notificationtype:{type:Number,required:true,enum:[1,2,3]},
+          notificationtype:{type:Number,required:true,enum:[1,2,3,4]},
           viewed:{type:Boolean,required:true,default:false}
         },
         { timestamps: true }

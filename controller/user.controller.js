@@ -1,4 +1,4 @@
-const {usermodel,postsmodel}=require('../models/main.models')
+const {usermodel,postsmodel,notficationsmodel}=require('../models/main.models')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
  
@@ -236,7 +236,9 @@ if(userid==usertofollow)return res.send({user:userupdatefollowing,message:'can n
             userupdatefollowing.followingcounter--
 await userupdatefollowing.save()
 
-res.send({user:usertofollowupdate,following:false})
+await notficationsmodel.findOneAndDelete({notificationowner:userid,postowner:usertofollow,notificationtype:4})
+
+res.send({message:'successfully unfollowed',following:false})
 
 
         }else{
@@ -250,7 +252,9 @@ res.send({user:usertofollowupdate,following:false})
             await usertofollowupdate.save()
             await userupdatefollowing.save()
 
-            res.send({user:usertofollowupdate,following:true})
+            const follwingnotification= await notficationsmodel.create({notificationowner:userid,postowner:usertofollow,notificationtype:4})
+
+            res.send({message:'successfully followed',following:true,follwingnotification})
         }
 
 
@@ -360,6 +364,25 @@ exports.getfollowing=async(req,res)=>{
         
     } catch (error) {
         res.send(error)
+    }
+}
+
+exports.viewedfollowingnotification=async(req,res)=>{
+    try {
+
+        const {usertofollow}=req.params
+        const{userid}=req.body
+console.log('post owner ',usertofollow);
+console.log('notification owner ',userid);
+        const viewnotification=await notficationsmodel.findOne({notificationowner:usertofollow,postowner: userid,notificationtype:4})
+console.log('profile notfication',viewnotification);
+        if(viewnotification==null)return res.send({message:'missing notification document'})
+        viewnotification.viewed=true
+        await viewnotification.save()
+        res.send({message:'profile viewed'})
+        
+    } catch (error) {
+        
     }
 }
 
